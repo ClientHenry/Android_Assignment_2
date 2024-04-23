@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background_login"
+    tools:context=".PageLogin">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/login_btn_return"
+        style="?attr/floatingActionButtonSmallStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="50dp"
+        app:srcCompat="@drawable/btn_return" />
+
+    <TextView
+        style="@style/TextAppearance.MaterialComponents.Headline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Welcome Back"
+        android:textColor="#FFFFFF" />
+
+    <TextView
+        style="@style/TextAppearance.MaterialComponents.Headline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        android:text="Please, Log in."
+        android:textColor="#FFFFFF" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/login_txt_username"
+        style="?attr/textInputFilledStyle"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:hint="User Name"
+        android:textColorHint="#D9D9D9"
+        app:boxBackgroundColor="#FFFFFF"
+        app:endIconMode="clear_text"
+        app:errorEnabled="true"
+        app:startIconDrawable="@drawable/txt_name"
+        app:startIconTint="@color/md_theme_light_primary">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/login_txt_password"
+        style="?attr/textInputFilledStyle"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:hint="Password"
+        android:textColorHint="#D9D9D9"
+        app:boxBackgroundColor="#FFFFFF"
+        app:endIconMode="password_toggle"
+        app:errorEnabled="true"
+        app:startIconDrawable="@drawable/txt_password"
+        app:startIconTint="@color/md_theme_light_primary">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/login_btn_login"
+        style="@style/Widget.Material3.Button.ElevatedButton"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:text="Login in"
+        android:textSize="20dp"
+        app:icon="@drawable/btn_arrow"
+        android:backgroundTint="@drawable/btn_state"
+        app:iconGravity="textEnd"
+        app:iconSize="50dp" />
+
+</LinearLayout>
