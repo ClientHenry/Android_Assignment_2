@@ -1,9 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_play_quiz"
     tools:context=".PagePlayQuiz">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/play_quiz_btn_return"
+        style="?attr/floatingActionButtonSmallStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="50dp"
+        app:srcCompat="@drawable/btn_return" />
+
+    <TextView
+        style="@style/TextAppearance.MaterialComponents.Headline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Let's Get Started"
+        android:layout_marginTop="40dp"
+        android:textColor="#FFFFFF" />
+
+    <FrameLayout
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/play_quiz_quiz_container"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp" />
+
 
 </LinearLayout>

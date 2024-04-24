@@ -30,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:text="Please, Log in."
         android:textColor="#FFFFFF" />
 
@@ -40,7 +40,7 @@
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="40dp"
         android:hint="User Name"
         android:textColorHint="#D9D9D9"
         app:boxBackgroundColor="#FFFFFF"
@@ -63,7 +63,7 @@
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="20dp"
         android:hint="Password"
         android:textColorHint="#D9D9D9"
         app:boxBackgroundColor="#FFFFFF"
@@ -85,8 +85,31 @@
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:text="Login in"
+        android:textSize="20dp"
+        app:icon="@drawable/btn_arrow"
+        android:backgroundTint="@drawable/btn_state"
+        app:iconGravity="textEnd"
+        app:iconSize="50dp" />
+
+    <TextView
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="-------------------------    Or    -------------------------"
+        android:textColor="#FFFFFF"
+        android:textSize="20dp" />
+
+    <Button
+        android:id="@+id/login_btn_Sign_Up"
+        style="@style/Widget.Material3.Button.ElevatedButton"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="Sign Up"
         android:textSize="20dp"
         app:icon="@drawable/btn_arrow"
         android:backgroundTint="@drawable/btn_state"
