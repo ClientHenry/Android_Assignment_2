@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/quiz_detail_txt_questions"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lenovo acquired IBM&#039;s personal computer division, including the ThinkPad line of laptops and tablets, in what year?" />
+
+    <CheckBox
+        android:id="@+id/quiz_detail_checkbox_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Options"
+        app:checkedState="indeterminate" />
+
+    <LinearLayout
+        android:id="@+id/quiz_detail_checkbox_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <CheckBox
+            android:id="@+id/quiz_detail_checkbox_child_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="label_child_1" />
+
+        <CheckBox
+            android:id="@+id/quiz_detail_checkbox_child_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="label_child_2" />
+
+        <CheckBox
+            android:id="@+id/quiz_detail_checkbox_child_3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="label_child_3" />
+
+        <CheckBox
+            android:id="@+id/quiz_detail_checkbox_child_4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="label_child_4" />
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/quiz_detail_btn_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_margin="16dp"
+        android:text="Next Question" />
+
+</LinearLayout>
