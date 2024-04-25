@@ -8,15 +8,6 @@
     android:background="@drawable/background_login"
     tools:context=".PageLogin">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/login_btn_return"
-        style="?attr/floatingActionButtonSmallStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="50dp"
-        app:srcCompat="@drawable/btn_return" />
-
     <TextView
         style="@style/TextAppearance.MaterialComponents.Headline4"
         android:layout_width="wrap_content"
@@ -103,7 +94,7 @@
         android:textSize="20dp" />
 
     <Button
-        android:id="@+id/login_btn_Sign_Up"
+        android:id="@+id/login_btn_sign_up"
         style="@style/Widget.Material3.Button.ElevatedButton"
         android:layout_width="350dp"
         android:layout_height="wrap_content"

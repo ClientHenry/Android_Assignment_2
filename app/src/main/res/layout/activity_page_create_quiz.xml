@@ -43,6 +43,7 @@
 
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/create_quiz_txt_name"
                     style="?attr/textInputFilledStyle"
                     android:layout_width="350dp"
                     android:layout_height="wrap_content"
@@ -63,7 +64,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/create_quiz_btn_category"
+                    android:id="@+id/create_quiz_txt_category"
                     style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
                     android:layout_width="350dp"
                     android:layout_height="wrap_content"
@@ -90,6 +91,7 @@
 
                     <TextView
                         style="@style/TextAppearance.Material3.BodyLarge"
+                        android:id="@+id/create_quiz_txt_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -116,7 +118,7 @@
                 </LinearLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/create_quiz_btn_difficulty"
+                    android:id="@+id/create_quiz_txt_difficulty"
                     style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
                     android:layout_width="350dp"
                     android:layout_height="wrap_content"
