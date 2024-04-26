@@ -82,9 +82,8 @@ public class PageCreateQuiz extends AppCompatActivity {
             txtItemsType.setSimpleItems(itemsType);
         }
 
-        //category follow the same logic as difficulty
-
         btnCreateQuiz.setOnClickListener(v -> {
+
             quizName = getName();
             quizDifficulty = getDifficulty();
             quizCategory = getCategory();
@@ -114,7 +113,6 @@ public class PageCreateQuiz extends AppCompatActivity {
             } else {
 
                retrieveData();
-
             }
         });
     }
@@ -134,39 +132,20 @@ public class PageCreateQuiz extends AppCompatActivity {
             public void onResponse(Call<DataReturned> call, Response<DataReturned> response) {
 
                 List<DataReturned.ResultsBean> DataReturn = response.body().getResults();
-
                 List<Quiz.QuestionBean> questions = new ArrayList<>();
-
-
-             //   Quiz quiz = new Quiz(quizName, quizType, quizDifficulty, quizCategory, new Date(), new Date());
-
                 for(DataReturned.ResultsBean q : DataReturn){
                     questions.add(new Quiz.QuestionBean(q.getQuestion(), q.getCorrect_answer(), q.getIncorrect_answers()));
                 }
 
-
                 Quiz quiz = new Quiz(quizName, quizType, quizDifficulty, quizCategory, new Date(), new Date(), questions);
 
-
-
-             //   response.body().setName("My DataReturned");
-            //    String name = response.body().getName();
-
-           //     DataReturned.ResultsBean q = DataReturn.get(0);
-
                 myref.push().setValue(quiz);
-
             }
-
             @Override
             public void onFailure(Call<DataReturned> call, Throwable t) {
 
             }
         });
-
-
-
-
     }
 
     private void initViews() {
@@ -178,7 +157,6 @@ public class PageCreateQuiz extends AppCompatActivity {
         btnCreateQuiz = findViewById(R.id.create_quiz_btn_create);
         btnDatePicker = findViewById(R.id.create_quiz_btn_datepicker);
         btnReturn = findViewById(R.id.create_quiz_btn_return);
-
     }
 
     private String getName() {
@@ -200,7 +178,6 @@ public class PageCreateQuiz extends AppCompatActivity {
     private String getCategory() {
         return txtLayoutQuizCategory.getEditText().getText().toString();
     }
-
     private String getDate() {
         return txtDate.getText().toString();
     }
