@@ -2,21 +2,13 @@ package com.example.assignment_2;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.Arrays;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -31,7 +23,7 @@ public class PageLogin extends AppCompatActivity {
     TextInputLayout textInputLayoutName;
     TextInputLayout textInputLayoutPassword;
 
-    Quiz quiz;
+    DataReturned quiz;
     String name;
     DatabaseReference myRef;
 
@@ -90,7 +82,7 @@ public class PageLogin extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-            //   Quiz.ResultsBean value = dataSnapshot.getValue(Quiz.ResultsBean.class);
+            //   DataReturned.ResultsBean value = dataSnapshot.getValue(DataReturned.ResultsBean.class);
 
              //   Toast.makeText(PageLogin.this, value.getCategory(), Toast.LENGTH_SHORT).show();
 
@@ -117,30 +109,30 @@ public class PageLogin extends AppCompatActivity {
                 .build();
 
         QuizService service = retrofit.create(QuizService.class);
-        Call<Quiz> quizCall = service.getQuiz(10,0, null, null);
+        Call<DataReturned> quizCall = service.getQuiz(10,0, null, null);
 
-        quizCall.enqueue(new Callback<Quiz>(){
+        quizCall.enqueue(new Callback<DataReturned>(){
 
             @Override
-            public void onResponse(Call<Quiz> call, Response<Quiz> response) {
+            public void onResponse(Call<DataReturned> call, Response<DataReturned> response) {
             quiz = response.body();
         //   name = quiz.getResults().get(0).getCategory();
          //  Toast.makeText(PageLogin.this, quiz.getResults().get(0).getCategory(), Toast.LENGTH_SHORT).show();
            myRef.setValue(quiz);
-            //    List<Quiz.ResultsBean> quiz = response.body().getResults();
+            //    List<DataReturned.ResultsBean> quiz = response.body().getResults();
 
          //       quiz = response.body().getResults();
 
-          //      response.body().setName("My Quiz");
+          //      response.body().setName("My DataReturned");
              //   String name = response.body().getName();
           //
-              //  Quiz.ResultsBean q = quiz.get(0);
+              //  DataReturned.ResultsBean q = quiz.get(0);
            //
 
             }
 
             @Override
-            public void onFailure(Call<Quiz> call, Throwable t) {
+            public void onFailure(Call<DataReturned> call, Throwable t) {
 
             }
         });

@@ -136,6 +136,25 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/create_quiz_txt_type"
+                    style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                    android:layout_width="350dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="35dp"
+                    android:hint="Type"
+                    android:paddingVertical="0dp"
+                    android:textColorHint="@color/md_theme_light_primary"
+                    app:boxBackgroundColor="#FFFFFF">
+
+                    <AutoCompleteTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
 
                 <Button
                     android:id="@+id/create_quiz_btn_create"
