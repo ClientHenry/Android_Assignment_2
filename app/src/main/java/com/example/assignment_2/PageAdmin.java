@@ -6,23 +6,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class PageAdmin extends AppCompatActivity {
 
@@ -51,7 +47,6 @@ public class PageAdmin extends AppCompatActivity {
         DatabaseReference myref = database.getReference("Quiz");
         quizMap = new HashMap<>();
 
-        // My top posts by number of stars
         myref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -79,7 +74,7 @@ public class PageAdmin extends AppCompatActivity {
 
         rvQuizzes = findViewById(R.id.admin_recyclerview);
         rvQuizzes.setLayoutManager(new LinearLayoutManager(this));
-        rvQuizzes.setAdapter(new AdapterAdmin(this, quizMap));
+        rvQuizzes.setAdapter(new AdapterQuiz(this, quizMap));
 
     }
 

@@ -8,14 +8,14 @@
     >
 
     <TextView
-        android:id="@+id/quiz_detail_txt_question"
+        android:id="@+id/quiz_detail_multiple_txt_question"
         style="@style/TextAppearance.Material3.HeadlineSmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Lenovo acquired IBM&#039;s personal computer division, including the ThinkPad line of laptops and tablets, in what year?" />
 
     <CheckBox
-        android:id="@+id/quiz_detail_checkbox_parent"
+        android:id="@+id/quiz_detail_multiple_checkbox_parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -23,31 +23,31 @@
         app:checkedState="indeterminate" />
 
     <LinearLayout
-        android:id="@+id/quiz_detail_checkbox_container"
+        android:id="@+id/quiz_detail_multiple_checkbox_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <CheckBox
-            android:id="@+id/quiz_detail_checkbox_child_1"
+            android:id="@+id/quiz_detail_multiple_checkbox_child_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="label_child_1" />
 
         <CheckBox
-            android:id="@+id/quiz_detail_checkbox_child_2"
+            android:id="@+id/quiz_detail_multiple_checkbox_child_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="label_child_2" />
 
         <CheckBox
-            android:id="@+id/quiz_detail_checkbox_child_3"
+            android:id="@+id/quiz_detail_multiple_checkbox_child_3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="label_child_3" />
 
         <CheckBox
-            android:id="@+id/quiz_detail_checkbox_child_4"
+            android:id="@+id/quiz_detail_multiple_checkbox_child_4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="label_child_4" />
@@ -55,7 +55,7 @@
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/quiz_detail_btn_next"
+        android:id="@+id/quiz_detail_multiple_btn_next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"

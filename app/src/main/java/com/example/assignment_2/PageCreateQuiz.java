@@ -34,6 +34,7 @@ public class PageCreateQuiz extends AppCompatActivity {
     Button btnCreateQuiz, btnDatePicker;
     FloatingActionButton btnReturn;
     String quizName, quizDifficulty, quizCategory, quizDate, quizType;
+    Date startDateSelected, endDateSelected;
     FirebaseDatabase database = FirebaseDatabase.getInstance("https://assignment-2-e308f-default-rtdb.asia-southeast1.firebasedatabase.app/");
     DatabaseReference myref = database.getReference("Quiz");
 
@@ -51,8 +52,8 @@ public class PageCreateQuiz extends AppCompatActivity {
             dateRangePicker.addOnPositiveButtonClickListener(selection -> {
 
                 Pair<Long, Long> dateSelected = (Pair<Long, Long>) dateRangePicker.getSelection();
-                Date startDateSelected = new Date(dateSelected.first);
-                Date endDateSelected = new Date(dateSelected.second);
+                startDateSelected = new Date(dateSelected.first);
+                endDateSelected = new Date(dateSelected.second);
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM. d", Locale.ENGLISH);
                 String startDateformatted = sdf.format(startDateSelected);
                 String endDateformatted = sdf.format(endDateSelected);
@@ -137,7 +138,7 @@ public class PageCreateQuiz extends AppCompatActivity {
                     questions.add(new Quiz.QuestionBean(q.getQuestion(), q.getCorrect_answer(), q.getIncorrect_answers()));
                 }
 
-                Quiz quiz = new Quiz(quizName, quizType, quizDifficulty, quizCategory, new Date(), new Date(), questions);
+                Quiz quiz = new Quiz(quizName, quizType, quizDifficulty, quizCategory, startDateSelected, endDateSelected, questions);
 
                 myref.push().setValue(quiz);
             }

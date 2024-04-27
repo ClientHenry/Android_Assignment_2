@@ -42,6 +42,7 @@
         app:iconSize="50dp" />
 
     <com.google.android.material.tabs.TabLayout
+        android:id="@+id/user_tab"
         android:layout_width="370dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
