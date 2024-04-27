@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Let's Get Started"
+        android:text="Ready Go"
         android:layout_marginTop="40dp"
         android:textColor="#FFFFFF" />
 
@@ -32,6 +32,14 @@
         android:id="@+id/play_quiz_quiz_container"
         android:layout_gravity="center"
         android:layout_marginTop="50dp" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/play_quiz_btn_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_margin="16dp"
+        android:text="Next Question" />
 
 
 </LinearLayout>

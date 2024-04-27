@@ -74,7 +74,7 @@ public class PageAdmin extends AppCompatActivity {
 
         rvQuizzes = findViewById(R.id.admin_recyclerview);
         rvQuizzes.setLayoutManager(new LinearLayoutManager(this));
-        rvQuizzes.setAdapter(new AdapterQuiz(this, quizMap));
+        rvQuizzes.setAdapter(new AdapterQuiz(this, quizMap, "detail"));
 
     }
 

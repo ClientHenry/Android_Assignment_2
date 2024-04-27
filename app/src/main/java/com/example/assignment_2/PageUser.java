@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,11 @@ public class PageUser extends AppCompatActivity {
     FloatingActionButton btnReturn;
     Button btnSignOut;
     HashMap<String, Quiz> quizMap;
+    TextView txtName;
+    String userKey, viewType;
+    FirebaseDatabase database;
+    User user;
+
 
 
     @Override
@@ -37,9 +43,22 @@ public class PageUser extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_user);
 
+        userKey = getIntent().getStringExtra("userKey");
+        database = FirebaseDatabase.getInstance("https://assignment-2-e308f-default-rtdb.asia-southeast1.firebasedatabase.app/");
+
+
+        getAllQuizzes();
+        getUser();
+
+
         recyclerView = findViewById(R.id.user_recycler);
         btnReturn = findViewById(R.id.user_btn_return);
         btnSignOut = (Button) findViewById(R.id.user_btn_sign_out);
+        txtName = findViewById(R.id.user_txt_name);
+
+
+
+
         TabLayout tab = findViewById(R.id.user_tab);
         tab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -59,7 +78,7 @@ public class PageUser extends AppCompatActivity {
 
                         }
 
-                        setRecycleView(quizMapOngoing);
+                        setRecycleView(quizMapOngoing, "play");
 
 
                         break;
@@ -74,11 +93,14 @@ public class PageUser extends AppCompatActivity {
 
                         }
 
-                        setRecycleView(quizMapUpcoming);
+                        setRecycleView(quizMapUpcoming, "detail");
 
                         break;
 
                     case 2:
+
+
+
 
 
 
@@ -95,7 +117,7 @@ public class PageUser extends AppCompatActivity {
 
                         }
 
-                        setRecycleView(quizMapUpPast);
+                        setRecycleView(quizMapUpPast, "detail");
 
 
                         break;
@@ -115,7 +137,6 @@ public class PageUser extends AppCompatActivity {
         });
 
 
-        getAllQuizzes();
 
         btnReturn.setOnClickListener(v -> {
             finish();
@@ -124,10 +145,9 @@ public class PageUser extends AppCompatActivity {
 
     private void getAllQuizzes(){
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://assignment-2-e308f-default-rtdb.asia-southeast1.firebasedatabase.app/");
-        DatabaseReference myref = database.getReference("Quiz");
+        DatabaseReference quizRef = database.getReference("Quiz");
         quizMap = new HashMap<>();
-        myref.addValueEventListener(new ValueEventListener() {
+        quizRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot quiz: dataSnapshot.getChildren()) {
@@ -149,10 +169,35 @@ public class PageUser extends AppCompatActivity {
 
     }
 
-    private void setRecycleView(HashMap<String, Quiz> quizMapSelected){
+    private void setRecycleView(HashMap<String, Quiz> quizMapSelected, String viewType){
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new AdapterQuiz(this, quizMapSelected));
+        recyclerView.setAdapter(new AdapterQuiz(this, quizMapSelected, viewType));
 
     }
+
+    private void getUser(){
+
+        DatabaseReference userRef = database.getReference("User").child(userKey);
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                user = dataSnapshot.getValue(User.class);
+                txtName.setText("Hi " + user.getName());
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+                // ...
+            }
+        });
+
+
+    }
+
+
+
 }
