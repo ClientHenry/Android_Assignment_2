@@ -73,7 +73,6 @@ public class PageQuizDetail extends AppCompatActivity {
                 txtStartDate.setText(quiz.getStartDate().toString());
                 txtEndDate.setText(quiz.getEndDate().toString());
                 questions = quiz.getQuestions();
-                quizType = quiz.getType();
 
 
                 recyclerView(); //不应该放在这里，还是要接口回调

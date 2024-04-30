@@ -99,6 +99,18 @@ public class PageUser extends AppCompatActivity {
 
                     case 2:
 
+                        HashMap<String, Quiz> quizMapParticipated = new HashMap<>();
+
+            /*            Toast.makeText(PageUser.this, user.quizzes.get(0), Toast.LENGTH_SHORT).show();
+
+
+                        user.quizzes.forEach(quizKey -> {
+                            Quiz quiz = quizMap.get(quizKey);
+                            quizMapParticipated.put(quizKey, quiz);
+                        });*/ //如何让这个代码自动生成arraylist
+
+                        setRecycleView(quizMapParticipated, "detail");
+
 
 
 
@@ -172,7 +184,7 @@ public class PageUser extends AppCompatActivity {
     private void setRecycleView(HashMap<String, Quiz> quizMapSelected, String viewType){
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new AdapterQuiz(this, quizMapSelected, viewType));
+        recyclerView.setAdapter(new AdapterQuiz(this, quizMapSelected, viewType, userKey));
 
     }
 

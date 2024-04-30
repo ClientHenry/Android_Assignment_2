@@ -1,10 +1,12 @@
 package com.example.assignment_2;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 
@@ -12,8 +14,12 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,14 +35,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PageCreateQuiz extends AppCompatActivity {
 
-    TextInputLayout txtLayoutQuizName, txtLayoutQuizDifficulty, txtLayoutQuizCategory, txtLayoutQuizType;
-    TextView txtDate;
-    Button btnCreateQuiz, btnDatePicker;
-    FloatingActionButton btnReturn;
-    String quizName, quizDifficulty, quizCategory, quizDate, quizType;
+    TextInputLayout txtLayoutQuizName, txtLayoutQuizDifficulty, txtLayoutQuizCategory, txtLayoutQuizDate;
+    Button btnCreateQuiz, btnCancel;
+    FloatingActionButton btnReturn, btnDatePicker;
+    String quizName, quizDifficulty, quizCategory, quizDate;
+    int quizCategoryID;
     Date startDateSelected, endDateSelected;
-    FirebaseDatabase database = FirebaseDatabase.getInstance("https://assignment-2-e308f-default-rtdb.asia-southeast1.firebasedatabase.app/");
-    DatabaseReference myref = database.getReference("Quiz");
+    DatabaseReference myRef;
+    OpenTDBService service;
+    List<QuizCategory.TriviaCategoriesBean> categories;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,123 +51,190 @@ public class PageCreateQuiz extends AppCompatActivity {
         setContentView(R.layout.activity_page_create_quiz);
 
         initViews();
+        retrieveQuizCategory();
 
         btnDatePicker.setOnClickListener(v -> {
+
             MaterialDatePicker dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
                     .setTitleText("Select dates").build();
 
             dateRangePicker.addOnPositiveButtonClickListener(selection -> {
 
                 Pair<Long, Long> dateSelected = (Pair<Long, Long>) dateRangePicker.getSelection();
-                startDateSelected = new Date(dateSelected.first);
-                endDateSelected = new Date(dateSelected.second);
+                Date startDateSelected = new Date(dateSelected.first);
+                Date endDateSelected = new Date(dateSelected.second);
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM. d", Locale.ENGLISH);
                 String startDateformatted = sdf.format(startDateSelected);
                 String endDateformatted = sdf.format(endDateSelected);
 
-                txtDate.setText(startDateformatted + " - " + endDateformatted);
-
+                txtLayoutQuizDate.getEditText().setText(startDateformatted + " - " + endDateformatted);
             });
 
             dateRangePicker.show(getSupportFragmentManager(), "DATE_PICKER");
         });
-
-        String[] itemsCategory = {"Any Category"};
-        MaterialAutoCompleteTextView txtItemsCategory = (MaterialAutoCompleteTextView) txtLayoutQuizCategory.getEditText();
-        if (txtItemsCategory instanceof MaterialAutoCompleteTextView) {
-            txtItemsCategory.setSimpleItems(itemsCategory);
-        }
-
-        String[] itemsDifficulty = {"Any Difficulty", "Easy", "Medium", "Hard"};
-        MaterialAutoCompleteTextView txtItems = (MaterialAutoCompleteTextView) txtLayoutQuizDifficulty.getEditText();
-        if (txtItems instanceof MaterialAutoCompleteTextView) {
-            txtItems.setSimpleItems(itemsDifficulty);
-        }
-
-        String[] itemsType = {"Any Type", "Multiple Choice", "True/False"};
-        MaterialAutoCompleteTextView txtItemsType = (MaterialAutoCompleteTextView) txtLayoutQuizType.getEditText();
-        if (txtItemsType instanceof MaterialAutoCompleteTextView) {
-            txtItemsType.setSimpleItems(itemsType);
-        }
 
         btnCreateQuiz.setOnClickListener(v -> {
 
             quizName = getName();
             quizDifficulty = getDifficulty();
             quizCategory = getCategory();
+            quizCategoryID = getCategoryID(quizCategory);
             quizDate = getDate();
-            quizType = getType();
 
-            if (quizName.isEmpty()) {
-
-                txtLayoutQuizName.setError("Name cannot be empty");
-
-            } else if (quizDate.isEmpty()) {
-
-                txtDate.setError("Date cannot be empty");
-
-            } else if (quizCategory.isEmpty()) {
-
-                txtLayoutQuizCategory.setError("Category cannot be empty");
-
-            } else if (quizDifficulty.isEmpty()) {
-
-                txtLayoutQuizDifficulty.setError("Difficulty cannot be empty");
-
-            } else if (quizType.isEmpty()) {
-
-                txtLayoutQuizType.setError("Type cannot be empty");
-
-            } else {
-
-               retrieveData();
+            if (validateInput(quizName, quizDate)) {
+                validateQuizName(new OnReturnedListener() {
+                    @Override
+                    public void onReturned(boolean nameExists) {
+                        if (!nameExists) {
+                            retrieveAndCreateQuiz(quizCategoryID, quizDifficulty, quizName, startDateSelected, endDateSelected);
+                        }
+                    }
+                }, quizName);
             }
+        });
+
+        btnReturn.setOnClickListener(v -> {
+            finish();
+        });
+
+        btnCancel.setOnClickListener(v -> {
+            finish();
         });
     }
 
-    private void retrieveData() {
+    private void retrieveAndCreateQuiz(int categoryID, String difficulty, String name, Date startDate, Date endDate) {
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://opentdb.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        QuizService service = retrofit.create(QuizService.class);
-        Call<DataReturned> quizCall = service.getQuiz(10,0, quizDifficulty, quizType);
-
-        quizCall.enqueue(new Callback<DataReturned>(){
+        Call<RawOpenTDBDataReturned> dataCall = service.getDataFromOpenTDB(10, categoryID, difficulty, "boolean");
+        dataCall.enqueue(new Callback<RawOpenTDBDataReturned>() {
             @Override
-            public void onResponse(Call<DataReturned> call, Response<DataReturned> response) {
+            public void onResponse(Call<RawOpenTDBDataReturned> call, Response<RawOpenTDBDataReturned> response) {
 
-                List<DataReturned.ResultsBean> DataReturn = response.body().getResults();
-                List<Quiz.QuestionBean> questions = new ArrayList<>();
-                for(DataReturned.ResultsBean q : DataReturn){
-                    questions.add(new Quiz.QuestionBean(q.getQuestion(), q.getCorrect_answer(), q.getIncorrect_answers()));
+                List<RawOpenTDBDataReturned.ResultsBean> DataReturned = response.body().getResults();
+
+                if (DataReturned.isEmpty()) {
+                    Toast.makeText(PageCreateQuiz.this, "No Data Available, choose Another Option", Toast.LENGTH_SHORT).show();
+                } else {
+
+                    String categoryCreated = DataReturned.get(0).getCategory();
+                    String difficultyCreated = DataReturned.get(0).getDifficulty();
+
+                    List<Quiz.QuestionBean> questions = new ArrayList<>();
+                    for (RawOpenTDBDataReturned.ResultsBean q : DataReturned) {
+
+                        questions.add(new Quiz.QuestionBean(q.getQuestion(), q.getCorrect_answer(), q.getIncorrect_answers()));
+                    }
+
+                    Quiz quiz = new Quiz(name, difficultyCreated, categoryCreated, startDate, endDate, questions);
+                    myRef.push().setValue(quiz);
+
+                    Toast.makeText(PageCreateQuiz.this, "Quiz Created Successfully", Toast.LENGTH_SHORT).show();
                 }
-
-                Quiz quiz = new Quiz(quizName, quizType, quizDifficulty, quizCategory, startDateSelected, endDateSelected, questions);
-
-                myref.push().setValue(quiz);
             }
+
             @Override
-            public void onFailure(Call<DataReturned> call, Throwable t) {
+            public void onFailure(Call<RawOpenTDBDataReturned> call, Throwable t) {
+
+                Toast.makeText(PageCreateQuiz.this, "Failed to retrieve data", Toast.LENGTH_SHORT).show();
 
             }
         });
     }
 
     private void initViews() {
+
         txtLayoutQuizName = findViewById(R.id.create_quiz_txt_name);
         txtLayoutQuizDifficulty = findViewById(R.id.create_quiz_txt_difficulty);
         txtLayoutQuizCategory = findViewById(R.id.create_quiz_txt_category);
-        txtDate = findViewById(R.id.create_quiz_txt_date);
-        txtLayoutQuizType = findViewById(R.id.create_quiz_txt_type);
+        txtLayoutQuizDate = findViewById(R.id.create_quiz_txt_date);
         btnCreateQuiz = findViewById(R.id.create_quiz_btn_create);
         btnDatePicker = findViewById(R.id.create_quiz_btn_datepicker);
         btnReturn = findViewById(R.id.create_quiz_btn_return);
+        btnCancel = findViewById(R.id.create_quiz_btn_cancel);
+
+        myRef = FirebaseDatabase.getInstance("https://assignment2-fd51e-default-rtdb.asia-southeast1.firebasedatabase.app/")
+                .getReference("Quiz");
+
+        service = new Retrofit.Builder().baseUrl("https://opentdb.com/").addConverterFactory(GsonConverterFactory.create()).build()
+                .create(OpenTDBService.class);
+
+        String[] itemsDifficulty = {"Any Difficulty", "Easy", "Medium", "Hard"};
+        MaterialAutoCompleteTextView txtItems = (MaterialAutoCompleteTextView) txtLayoutQuizDifficulty.getEditText();
+        if (txtItems instanceof MaterialAutoCompleteTextView) {
+            txtItems.setSimpleItems(itemsDifficulty);
+            txtItems.setText(itemsDifficulty[0], false);
+        }
+    }
+
+    private boolean validateInput(String name, String date) {
+
+        boolean isValid = false;
+
+        if (name.isEmpty()) {
+            txtLayoutQuizName.setError("Name cannot be empty");
+        } else if (date.isEmpty()) {
+            txtLayoutQuizDate.setError("Date cannot be empty");
+        } else {
+            isValid = true;
+        }
+        return isValid;
+    }
+
+    private void retrieveQuizCategory() {
+
+        Call<QuizCategory> quizCategoryCall = service.getQuizCategories();
+        quizCategoryCall.enqueue(new Callback<QuizCategory>() {
+            @Override
+            public void onResponse(Call<QuizCategory> call, Response<QuizCategory> response) {
+
+                categories = response.body().getTrivia_categories();
+                categories.add(0, new QuizCategory.TriviaCategoriesBean(0, "Any Category"));
+                String[] itemsCategory = new String[categories.size()];
+
+                for (int i = 0; i < categories.size(); i++) {
+                    itemsCategory[i] = categories.get(i).getName();
+                }
+
+                MaterialAutoCompleteTextView txtItemsCategory = (MaterialAutoCompleteTextView) txtLayoutQuizCategory.getEditText();
+                if (txtItemsCategory instanceof MaterialAutoCompleteTextView) {
+
+                    txtItemsCategory.setSimpleItems(itemsCategory);
+                    txtItemsCategory.setText(itemsCategory[0], false);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<QuizCategory> call, Throwable t) {
+
+                Toast.makeText(PageCreateQuiz.this, "Failed to retrieve category data", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void validateQuizName(OnReturnedListener listener, String quizName) {
+
+        Query myQuery = myRef.orderByChild("name").equalTo(quizName);
+        myQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                boolean nameExists = snapshot.exists();
+                if (nameExists) {
+                    txtLayoutQuizName.setError("Quiz name already exists");
+
+                }
+                listener.onReturned(nameExists);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+                Toast.makeText(PageCreateQuiz.this, "Error: unable to connect database", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private String getName() {
+
         return txtLayoutQuizName.getEditText().getText().toString();
     }
 
@@ -168,32 +242,37 @@ public class PageCreateQuiz extends AppCompatActivity {
 
         String difficulty = txtLayoutQuizDifficulty.getEditText().getText().toString();
 
-        if(difficulty.equals("Any Difficulty")){
+        if (difficulty.equals("Any Difficulty")) {
             return "";
-        }
-        else{
+        } else {
             return difficulty.toLowerCase();
         }
     }
 
     private String getCategory() {
+
         return txtLayoutQuizCategory.getEditText().getText().toString();
     }
-    private String getDate() {
-        return txtDate.getText().toString();
-    }
 
-    private String getType() {
+    private int getCategoryID(String category) {
 
-        String type = txtLayoutQuizType.getEditText().getText().toString();
+        int id = 0;
 
-        if (type.equals("Multiple Choice")) {
-            return "multiple";
-        } else if (type.equals("True/False")) {
-            return "boolean";
-        } else {
-            return "";
+        for (QuizCategory.TriviaCategoriesBean c : categories) {
+            if (c.getName().equals(category)) {
+                id = c.getId();
+            }
         }
+
+        return id;
     }
 
+    private String getDate() {
+
+        return txtLayoutQuizDate.getEditText().getText().toString();
+    }
+
+    public interface OnReturnedListener {
+        void onReturned(boolean nameExists);
+    }
 }

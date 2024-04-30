@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -31,110 +32,126 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PageLogin extends AppCompatActivity {
 
-    Button btnLogin;
-    Button btnSignup;
-    TextInputLayout textInputLayoutName;
-    TextInputLayout textInputLayoutPassword;
-
-    DataReturned quiz;
-    String name;
+    Button btnLogin, btnSignup;
+    TextInputLayout textInputLayoutName, textInputLayoutPassword;
     DatabaseReference myRef;
-    HashMap<String, User> userMap;
-    List<User> userList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_login);
 
+        initViews();
+
+        btnLogin.setOnClickListener(v -> {
+
+            String userNameInput = validateUserName();
+            String passwordInput = validatePassword();
+
+            if(userNameInput != null && passwordInput != null) {
+
+                if (userNameInput.equals("admin") && passwordInput.equals("123456")) {
+
+                    Toast.makeText(PageLogin.this, "Login successfully", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(PageLogin.this, PageAdmin.class);
+                    startActivity(intent);
+                } else {
+                    matchUserInfo(new OnUserInfoCheckListener() {
+                        @Override
+                        public void onChecked(boolean validated, String userKey) {
+                            if (validated) {
+
+                                Toast.makeText(PageLogin.this, "Login successfully", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(PageLogin.this, PageUser.class);
+                                intent.putExtra("userKey", userKey);
+                                startActivity(intent);
+                            } else {
+
+                                textInputLayoutName.setError("Invalid username or password");
+                                textInputLayoutPassword.setError("Invalid username or password");
+                            }
+                        }
+                    }, userNameInput, passwordInput);
+                }
+            }
+        });
+
+        btnSignup.setOnClickListener(v -> {
+
+            startActivity(new Intent(PageLogin.this, PageSignUp.class));
+        });
+    }
+    private void initViews() {
+
         btnLogin = (Button) findViewById(R.id.login_btn_login);
         btnSignup = (Button) findViewById(R.id.login_btn_sign_up);
         textInputLayoutName = findViewById(R.id.login_txt_username);
         textInputLayoutPassword = findViewById(R.id.login_txt_password);
-
-
-        btnLogin.setOnClickListener(v -> {
-            String name = textInputLayoutName.getEditText().getText().toString();
-            String password = textInputLayoutPassword.getEditText().getText().toString();
-
-
-            if (name.equals("admin") && password.equals("123456")) {
-
-                startActivity(new Intent(PageLogin.this, PageAdmin.class));
-            } else if (checkUser(name, password) != null) {
-
-                Intent intent = new Intent(PageLogin.this, PageUser.class);
-                intent.putExtra("userKey", checkUser(name, password));
-                startActivity(intent);
-
-            } else {
-                // Show error message
-                textInputLayoutName.setError("Invalid username or password");
-                textInputLayoutPassword.setError("Invalid username or password");
-            }
-        });
-
-
-        btnSignup.setOnClickListener(v ->
-
-        {
-            startActivity(new Intent(PageLogin.this, PageSignUp.class));
-        });
-
-        getUsers();
-
-
     }
 
-    private void getUsers() {
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://assignment-2-e308f-default-rtdb.asia-southeast1.firebasedatabase.app/");
+    private String validateUserName() {
 
-        myRef = database.getReference("User");
+        String usernameInput = textInputLayoutName.getEditText().getText().toString().trim();
 
-        userMap = new HashMap<>();
-        userList = new ArrayList<>();
+        if (usernameInput.isEmpty()) {
+            textInputLayoutName.setError("Field can't be empty");
+            return null;
+        } else {
+            textInputLayoutName.setError(null);
+            return usernameInput;
+        }
+    }
 
-        myRef.addValueEventListener(new ValueEventListener() {
+    private String validatePassword() {
+
+        String passwordInput = textInputLayoutPassword.getEditText().getText().toString().trim();
+
+        if (passwordInput.isEmpty()) {
+            textInputLayoutPassword.setError("Field can't be empty");
+            return null;
+        } else {
+            textInputLayoutPassword.setError(null);
+            return passwordInput;
+        }
+    }
+
+    private void matchUserInfo(OnUserInfoCheckListener listener, String userNameInput, String passwordInput) {
+
+        myRef = FirebaseDatabase.
+                getInstance("https://assignment2-fd51e-default-rtdb.asia-southeast1.firebasedatabase.app/").
+                getReference("User");
+
+        Query myQuery = myRef.orderByChild("name").equalTo(userNameInput);
+        myQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                for (DataSnapshot user : dataSnapshot.getChildren()) {
+                boolean validated = false;
+                String userKey = "";
 
-                    String key = user.getKey();
-                    User newUser = user.getValue(User.class);
-                    userMap.put(key, newUser);
+                if (dataSnapshot.exists()) {
+
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+
+                        String passwordStored = snapshot.getValue(User.class).getPassword();
+                        userKey = snapshot.getKey();
+
+                        if (passwordStored.equals(passwordInput)) {
+                            validated = true;
+                        }
+                    }
                 }
 
-                for (User user : userMap.values()) {
-                    userList.add(user);
-                }
-
-
+                listener.onChecked(validated, userKey);
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Getting Post failed, log a message
-                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
-                // ...
+
+                Toast.makeText(PageLogin.this, "Error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-
-    private String checkUser(String name, String password) {
-
-        String userKey = null;
-        for (Map.Entry<String, User> entry : userMap.entrySet()) {
-            String key = entry.getKey();
-            User user = entry.getValue();
-
-            if (user.getName().equals(name) && user.getPassword().equals(password)) {
-                userKey = key;
-                break;
-            }
-        }
-
-        return userKey;
+    public interface OnUserInfoCheckListener {
+        void onChecked(boolean validated, String userKey);
     }
 }

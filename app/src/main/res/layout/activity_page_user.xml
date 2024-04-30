@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/background_user"
+    android:orientation="vertical"
     tools:context=".PageUser">
-
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/user_btn_return"
@@ -19,8 +18,8 @@
         app:srcCompat="@drawable/btn_return" />
 
     <TextView
-        style="@style/TextAppearance.MaterialComponents.Headline4"
         android:id="@+id/user_txt_name"
+        style="@style/TextAppearance.MaterialComponents.Headline4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -34,10 +33,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="30dp"
+        android:backgroundTint="@drawable/btn_state"
         android:text="Sign Out"
         android:textSize="20dp"
         app:icon="@drawable/btn_arrow"
-        android:backgroundTint="@drawable/btn_state"
         app:iconGravity="textEnd"
         app:iconSize="50dp" />
 
@@ -45,8 +44,8 @@
         android:id="@+id/user_tab"
         android:layout_width="370dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -74,8 +73,7 @@
         android:id="@+id/user_recycler"
         android:layout_width="370dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_gravity="center" />
-
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp" />
 
 </LinearLayout>

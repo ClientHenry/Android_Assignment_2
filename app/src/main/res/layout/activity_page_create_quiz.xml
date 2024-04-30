@@ -23,7 +23,6 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/create_quiz_btn_return"
                     style="?attr/floatingActionButtonSmallStyle"
@@ -41,7 +40,6 @@
                     android:text="Create a New Quiz"
                     android:textColor="#FFFFFF" />
 
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/create_quiz_txt_name"
                     style="?attr/textInputFilledStyle"
@@ -52,7 +50,6 @@
                     android:hint="Name"
                     android:textColorHint="@color/md_theme_light_primary"
                     app:boxBackgroundColor="#FFFFFF"
-                    app:endIconMode="clear_text"
                     app:errorEnabled="true"
                     app:startIconDrawable="@drawable/txt_name"
                     app:startIconTint="@color/md_theme_light_primary">
@@ -69,7 +66,7 @@
                     android:layout_width="350dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="15dp"
                     android:hint="Category"
                     android:paddingVertical="0dp"
                     android:textColorHint="@color/md_theme_light_primary"
@@ -78,44 +75,46 @@
                     <AutoCompleteTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+
                         android:inputType="none" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <LinearLayout
-                    android:layout_width="350dp"
-                    android:layout_height="55dp"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="35dp"
-                    android:background="#FFFFFF">
+              <androidx.coordinatorlayout.widget.CoordinatorLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content">
 
-                    <TextView
-                        style="@style/TextAppearance.Material3.BodyLarge"
+                    <com.google.android.material.textfield.TextInputLayout
+
                         android:id="@+id/create_quiz_txt_date"
-                        android:layout_width="wrap_content"
+                        style="?attr/textInputFilledStyle"
+                        android:layout_width="350dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginHorizontal="15dp"
-                        android:text="Date"
-                        android:textColor="@color/md_theme_light_primary" />
+                        android:layout_marginTop="30dp"
+                        android:hint="Date"
+                        android:enabled="false"
+                        android:textColorHint="@color/md_theme_light_primary"
+                        app:boxBackgroundColor="#FFFFFF"
+                        app:errorEnabled="true"
+                        app:startIconTint="@color/md_theme_light_primary">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
 
-                    <Button
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
                         android:id="@+id/create_quiz_btn_datepicker"
-                        style="?attr/materialIconButtonStyle"
+                        style="?attr/floatingActionButtonSmallStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="20dp"
-                        android:background="@android:color/transparent"
-                        android:insetLeft="0dp"
-                        android:insetTop="0dp"
-                        android:insetRight="0dp"
-                        android:insetBottom="0dp"
-                        android:padding="0dp"
-                        app:icon="@drawable/btn_date"
-                        app:iconTint="?attr/colorPrimary" />
+                        android:layout_marginLeft="330dp"
+                        android:layout_marginTop="37dp"
+                        app:srcCompat="@drawable/btn_date" />
 
-                </LinearLayout>
+              </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/create_quiz_txt_difficulty"
@@ -123,7 +122,7 @@
                     android:layout_width="350dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="35dp"
+                    android:layout_marginTop="15dp"
                     android:hint="Difficulty"
                     android:paddingVertical="0dp"
                     android:textColorHint="@color/md_theme_light_primary"
@@ -135,26 +134,6 @@
                         android:inputType="none" />
 
                 </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/create_quiz_txt_type"
-                    style="@style/Widget.Material3.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                    android:layout_width="350dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="35dp"
-                    android:hint="Type"
-                    android:paddingVertical="0dp"
-                    android:textColorHint="@color/md_theme_light_primary"
-                    app:boxBackgroundColor="#FFFFFF">
-
-                    <AutoCompleteTextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="none" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
 
                 <Button
                     android:id="@+id/create_quiz_btn_create"
@@ -189,6 +168,5 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

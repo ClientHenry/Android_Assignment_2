@@ -14,28 +14,31 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="31">
-        <activity
-            android:name=".DataTest"
-            android:exported="false" />
-
 
         <activity
             android:name=".PageLogin"
-            android:exported="false" />
+            android:exported="true">
 
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
 
         <activity
             android:name=".PageAdmin"
             android:exported="false" />
 
+
         <activity
             android:name=".PageCreateQuiz"
             android:exported="false" />
 
+
         <activity
             android:name=".PageUser"
-            android:exported="false"/>
-
+            android:exported="false" />
         <activity
             android:name=".PagePlayQuiz"
             android:exported="false" />
@@ -44,15 +47,10 @@
             android:exported="false" />
         <activity
             android:name=".PageSignUp"
-            android:exported="true" >
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-    </activity>
+            android:exported="false"/>
 
 
-    </application>
+
+</application>
 
 </manifest>
