@@ -27,24 +27,24 @@
         android:textColor="#FFFFFF" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/login_txt_username"
+        android:id="@+id/login_txt_email"
         style="?attr/textInputFilledStyle"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="40dp"
-        android:hint="User Name"
+        android:hint="Email"
         android:textColorHint="#D9D9D9"
         app:boxBackgroundColor="#FFFFFF"
         app:endIconMode="clear_text"
         app:errorEnabled="true"
-        app:startIconDrawable="@drawable/txt_name"
+        app:startIconDrawable="@drawable/txt_email"
         app:startIconTint="@color/md_theme_light_primary">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName" />
+            android:inputType="textEmailAddress" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -78,7 +78,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="30dp"
         android:backgroundTint="@drawable/btn_state"
-        android:text="Login in"
+        android:text="Login In"
         android:textSize="20dp"
         app:icon="@drawable/btn_arrow"
         app:iconGravity="textEnd"

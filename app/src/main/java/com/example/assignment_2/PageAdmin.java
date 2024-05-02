@@ -20,20 +20,27 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PageAdmin extends AppCompatActivity {
     Button btnCreateQuiz, btnSignOut;
     FloatingActionButton btnReturn;
     RecyclerView rvQuizzes;
-    HashMap<String, Quiz> quizMap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_admin);
 
-        getAllQuizzes();
+        getAllQuizzes((success, quizList) -> {
+
+            if (success) {
+                recyclerView(quizList);
+            }
+        });
 
         btnCreateQuiz = (Button) findViewById(R.id.admin_btn_create_quiz);
         btnCreateQuiz.setOnClickListener(v -> {
@@ -47,6 +54,7 @@ public class PageAdmin extends AppCompatActivity {
 
             Intent intent = new Intent(PageAdmin.this, PageLogin.class);
             startActivity(intent);
+            finish();
         });
 
         btnReturn = (FloatingActionButton) findViewById(R.id.admin_btn_return);
@@ -56,24 +64,35 @@ public class PageAdmin extends AppCompatActivity {
         });
     }
 
-    private void getAllQuizzes() {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getAllQuizzes((success, quizList) -> {
+
+            if (success) {
+                recyclerView(quizList);
+            }
+        });
+    }
+
+    private void getAllQuizzes(OnDataListener listener) {
 
         DatabaseReference myRef = FirebaseDatabase
                 .getInstance("https://assignment2-fd51e-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("Quiz");
 
-        quizMap = new HashMap<>();
-        myRef.addValueEventListener(new ValueEventListener() {
+        ArrayList<Quiz> quizList = new ArrayList<>();
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 for (DataSnapshot quiz : dataSnapshot.getChildren()) {
 
-                    String key = quiz.getKey();
                     Quiz newQuiz = quiz.getValue(Quiz.class);
-                    quizMap.put(key, newQuiz);
+                    quizList.add(newQuiz);
                 }
-                recyclerView();
+
+                listener.onDataRetrieved(true, quizList);
             }
 
             @Override
@@ -84,10 +103,14 @@ public class PageAdmin extends AppCompatActivity {
         });
     }
 
-    private void recyclerView() {
+    private void recyclerView(ArrayList<Quiz> quizList) {
 
         rvQuizzes = findViewById(R.id.admin_recyclerview);
         rvQuizzes.setLayoutManager(new LinearLayoutManager(this));
-        rvQuizzes.setAdapter(new AdapterQuiz(this, quizMap, "detail", null));
+        rvQuizzes.setAdapter(new AdapterQuiz(this, quizList, "admin", null));
+    }
+
+    public interface OnDataListener {
+        void onDataRetrieved(boolean success, ArrayList<Quiz> quizList);
     }
 }

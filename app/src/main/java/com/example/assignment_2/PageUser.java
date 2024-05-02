@@ -23,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,10 +34,10 @@ public class PageUser extends AppCompatActivity {
     FloatingActionButton btnReturn;
     Button btnSignOut;
     TextView txtName;
-    String userKey, viewType;
+    String userKey;
     FirebaseDatabase database;
     TabLayout tab;
-    HashMap<String, String> quizKeyMap;
+    User.quizNameList quizNameList;
 
 
     @Override
@@ -50,9 +51,10 @@ public class PageUser extends AppCompatActivity {
         initViews();
         getUser(new OnUserDataListener() {
             @Override
-            public void onUserDataReceived(boolean isReceived, HashMap<String, String> quizKeyMap) {
+            public void onUserDataReceived(boolean isReceived) {
                 if (isReceived) {
-                    getOngoingQuizzes();
+
+                    getOngoingQuizzes(quizNameList);
                 }
             }
         });
@@ -63,16 +65,16 @@ public class PageUser extends AppCompatActivity {
                 int position = tab.getPosition();
                 switch (position) {
                     case 0:
-                        getOngoingQuizzes();
+                        getOngoingQuizzes(quizNameList);
                         break;
                     case 1:
                         getUpcomingQuizzes();
                         break;
                     case 2:
-                        getParticipatedQuizzes();
+                        getParticipatedQuizzes(quizNameList);
                         break;
                     case 3:
-                        getPastQuizzes();
+                        getPastQuizzes(quizNameList);
                         break;
                     default:
                         break;
@@ -82,7 +84,6 @@ public class PageUser extends AppCompatActivity {
             public void onTabUnselected(TabLayout.Tab tab) {
                 // Handle tab unselect
             }
-
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
                 // Handle tab reselect
@@ -116,17 +117,14 @@ public class PageUser extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                HashMap<String, Quiz> quizMap = new HashMap<>();
+                ArrayList<Quiz> quizList = new ArrayList<>();
 
                 for (DataSnapshot quiz : dataSnapshot.getChildren()) {
-                    String key = quiz.getKey();
                     Quiz newQuiz = quiz.getValue(Quiz.class);
-                    quizMap.put(key, newQuiz);
+                    quizList.add(newQuiz);
                 }
-
-                listener.onQuizDataReceived(true, quizMap);
+                listener.onQuizDataReceived(true, quizList);
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -135,26 +133,29 @@ public class PageUser extends AppCompatActivity {
         });
     }
 
-    private void setRecycleView(HashMap<String, Quiz> quizMapSelected, String viewType) {
+    private void setRecycleView(ArrayList<Quiz> quizListSelected, String viewType) {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new AdapterQuiz(this, quizMapSelected, viewType, userKey));
+        recyclerView.setAdapter(new AdapterQuiz(this, quizListSelected, viewType, userKey));
     }
 
     private void getUser(OnUserDataListener listener) {
 
-        DatabaseReference userRef = database.getReference("User").child(userKey);
-        userRef.addValueEventListener(new ValueEventListener() {
+        DatabaseReference myrRef = database.getReference("User").child(userKey);
+        myrRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                User user = dataSnapshot.getValue(User.class);
-                txtName.setText("Hi " + user.getName());
-                quizKeyMap = user.getQuizKeyMap();
 
-                listener.onUserDataReceived(true, quizKeyMap);
+                    User user = dataSnapshot.getValue(User.class);
+                    txtName.setText("Hi " + user.getName());
+
+
+                    quizNameList = user.getQuizNameList();
+
+                    listener.onUserDataReceived(true);
+
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -163,121 +164,98 @@ public class PageUser extends AppCompatActivity {
         });
     }
 
-
-    private void getParticipatedQuizzes() {
+    private void getParticipatedQuizzes(User.quizNameList quizNameList) {
         getAllQuizzes(new OnQuizDataListener() {
             @Override
-            public void onQuizDataReceived(boolean isReceived, HashMap<String, Quiz> quizMap) {
+            public void onQuizDataReceived(boolean isReceived, ArrayList<Quiz> quizList) {
                 if (isReceived) {
 
-                    HashMap<String, Quiz> quizMapParticipated = new HashMap<>();
-
-                    if (quizKeyMap == null) {
+                    if (quizNameList == null) {
                         Toast.makeText(PageUser.this, "Fail to retrieve data", Toast.LENGTH_SHORT).show();
                         return;
                     }
-
-                    for (Map.Entry<String, Quiz> entry : quizMap.entrySet()) {
-
-                        Quiz value = entry.getValue();
-                        if (quizKeyMap.containsValue(entry.getKey())) {
-                            quizMapParticipated.put(entry.getKey(), value);
+                    ArrayList<Quiz> quizListParticipated = new ArrayList<>();
+                    for (Quiz quiz : quizList) {
+                        if (quizNameList.getNameList().contains(quiz.getName())) {
+                            Toast.makeText(PageUser.this, "Participated: " + quiz.getName(), Toast.LENGTH_SHORT).show();
+                            quizListParticipated.add(quiz);
                         }
                     }
-                    setRecycleView(quizMapParticipated, "detail");
+
+                    setRecycleView(quizListParticipated, "detail");
                 }
             }
         });
     }
 
-    private void getPastQuizzes() {
+    private void getPastQuizzes(User.quizNameList quizNameList) {
         getAllQuizzes(new OnQuizDataListener() {
             @Override
-            public void onQuizDataReceived(boolean isReceived, HashMap<String, Quiz> quizMap) {
+            public void onQuizDataReceived(boolean isReceived, ArrayList<Quiz> quizList) {
                 if (isReceived) {
 
-                    HashMap<String, Quiz> quizMapPast = new HashMap<>();
-
-                    if (quizKeyMap == null) {
+                    if (quizList == null) {
                         Toast.makeText(PageUser.this, "Fail to retrieve data", Toast.LENGTH_SHORT).show();
                         return;
                     }
-
-                    for (Map.Entry<String, Quiz> entry : quizMap.entrySet()) {
-
-                        Quiz value = entry.getValue();
-                        String key = entry.getKey();
-
-                        if (value.getEndDate().before(new Date()) && !quizKeyMap.containsValue(key)) {
-
-                            quizMapPast.put(key, value);
+                    ArrayList<Quiz> quizListPast = new ArrayList<>();
+                    for (Quiz quiz : quizList) {
+                        if (!quizNameList.getNameList().contains(quiz.getName()) && quiz.getEndDate().before(new Date())) {
+                            quizListPast.add(quiz);
                         }
                     }
-                    setRecycleView(quizMapPast, "detail");
+                    setRecycleView(quizListPast, "detail");
                 }
             }
         });
     }
 
-    private void getOngoingQuizzes() {
-
+    private void getOngoingQuizzes(User.quizNameList quizNameList) {
         getAllQuizzes(new OnQuizDataListener() {
             @Override
-            public void onQuizDataReceived(boolean isReceived, HashMap<String, Quiz> quizMap) {
+            public void onQuizDataReceived(boolean isReceived, ArrayList<Quiz> quizList) {
                 if (isReceived) {
 
-                    HashMap<String, Quiz> quizMapOngoing = new HashMap<>();
-
-                    if (quizKeyMap == null) {
+                    if (quizList == null) {
                         Toast.makeText(PageUser.this, "Fail to retrieve data", Toast.LENGTH_SHORT).show();
                         return;
                     }
-
-                    for (Map.Entry<String, Quiz> entry : quizMap.entrySet()) {
-
-                        Quiz value = entry.getValue();
-                        String key = entry.getKey();
-
-                        if (!quizKeyMap.containsValue(key) && value.getEndDate().after(new Date()) &&
-                                value.getStartDate().before(new Date())) {
-                            quizMapOngoing.put(key, value);
+                    ArrayList<Quiz> quizListOngoing = new ArrayList<>();
+                    for (Quiz quiz : quizList) {
+                        if (!quizNameList.getNameList().contains(quiz.getName()) && quiz.getEndDate().after(new Date()) &&
+                                quiz.getStartDate().before(new Date())) {
+                            quizListOngoing.add(quiz);
                         }
                     }
-                    setRecycleView(quizMapOngoing, "play");
+                    setRecycleView(quizListOngoing, "play");
                 }
             }
         });
-
     }
 
-    //更改类型
     private void getUpcomingQuizzes() {
         getAllQuizzes(new OnQuizDataListener() {
             @Override
-            public void onQuizDataReceived(boolean isReceived, HashMap<String, Quiz> quizMap) {
+            public void onQuizDataReceived(boolean isReceived, ArrayList<Quiz> quizList) {
                 if (isReceived) {
 
-                    HashMap<String, Quiz> quizMapUpcoming = new HashMap<>();
-
-                    for (Map.Entry<String, Quiz> entry : quizMap.entrySet()) {
-
-                        Quiz value = entry.getValue();
-                        if (value.getStartDate().after(new Date())) {
-                            quizMapUpcoming.put(entry.getKey(), value);
+                    ArrayList<Quiz> quizListUpcoming = new ArrayList<>();
+                    for (Quiz quiz : quizList) {
+                        if (quiz.getStartDate().after(new Date())) {
+                            quizListUpcoming.add(quiz);
                         }
                     }
-
-                    setRecycleView(quizMapUpcoming, "play");
+                    setRecycleView(quizListUpcoming, "");
                 }
             }
         });
     }
 
     public interface OnQuizDataListener {
-        void onQuizDataReceived(boolean isReceived, HashMap<String, Quiz> quizMap);
+        void onQuizDataReceived(boolean isReceived, ArrayList<Quiz> quizList);
     }
 
     public interface OnUserDataListener {
-        void onUserDataReceived(boolean isReceived, HashMap<String, String> quizKeyMap);
+        void onUserDataReceived(boolean isReceived);
     }
 }

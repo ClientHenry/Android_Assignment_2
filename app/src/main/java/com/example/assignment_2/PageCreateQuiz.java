@@ -109,7 +109,7 @@ public class PageCreateQuiz extends AppCompatActivity {
             @Override
             public void onResponse(Call<RawOpenTDBDataReturned> call, Response<RawOpenTDBDataReturned> response) {
 
-                if(response.body() == null){
+                if (response.body() == null) {
 
                     Toast.makeText(PageCreateQuiz.this, "Unable to retrieve data", Toast.LENGTH_SHORT).show();
                     return;
@@ -134,16 +134,17 @@ public class PageCreateQuiz extends AppCompatActivity {
                     myRef.push().setValue(quiz);
 
                     Toast.makeText(PageCreateQuiz.this, "Quiz Created Successfully", Toast.LENGTH_SHORT).show();
+                    finish();
                 }
-        }
-        @Override
-        public void onFailure (Call < RawOpenTDBDataReturned > call, Throwable t){
+            }
 
-            Toast.makeText(PageCreateQuiz.this, "Failed to retrieve data", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onFailure(Call<RawOpenTDBDataReturned> call, Throwable t) {
 
-        }
-    });
-}
+                Toast.makeText(PageCreateQuiz.this, "Failed to retrieve data", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     private void initViews() {
 
@@ -277,7 +278,7 @@ public class PageCreateQuiz extends AppCompatActivity {
         return txtLayoutQuizDate.getEditText().getText().toString();
     }
 
-public interface OnReturnedListener {
-    void onReturned(boolean nameExists);
-}
+    public interface OnReturnedListener {
+        void onReturned(boolean nameExists);
+    }
 }

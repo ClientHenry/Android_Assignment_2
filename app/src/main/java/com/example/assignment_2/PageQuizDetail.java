@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,8 +17,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PageQuizDetail extends AppCompatActivity {
@@ -25,19 +29,24 @@ public class PageQuizDetail extends AppCompatActivity {
     FloatingActionButton btnReturn;
     TextView txtName, txtDifficulty, txtCategory, txtLike, txtStartDate, txtEndDate;
     RecyclerView rvQuestions;
-    List<Quiz.QuestionBean> questions;
-    String quizKey;
-    String quizType;
+    String quizName;
+    String viewType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_quiz_detail);
 
-        quizKey = getIntent().getStringExtra("quizKey");
+        quizName = getIntent().getStringExtra("quizName");
+        viewType = getIntent().getStringExtra("viewType");
+
 
         initViews();
-        getQuizDetail();
+        getQuizDetail((isSuccess, questions) -> {
+            if (isSuccess) {
+                recyclerView((ArrayList<Quiz.QuestionBean>) questions);
+            }
+        });
 
         btnReturn.setOnClickListener(v -> {
             finish();
@@ -57,45 +66,50 @@ public class PageQuizDetail extends AppCompatActivity {
         btnReturn = findViewById(R.id.quiz_detail_btn_return);
     }
 
-    private void getQuizDetail() {
+    private void getQuizDetail(OnQuizDataListener listener) {
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://assignment-2-e308f-default-rtdb.asia-southeast1.firebasedatabase.app/");
-        DatabaseReference myref = database.getReference("Quiz").child(quizKey);
-        ValueEventListener QuizListener = new ValueEventListener() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://assignment2-fd51e-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        Query query = database.getReference("Quiz").orderByChild("name").equalTo(quizName);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                Quiz quiz = dataSnapshot.getValue(Quiz.class);
-                txtName.setText(quiz.getName());
-                txtDifficulty.setText(quiz.getDifficulty());
-                txtCategory.setText(quiz.getCategory());
-                txtLike.setText(String.valueOf(quiz.getLikes()));
-                txtStartDate.setText(quiz.getStartDate().toString());
-                txtEndDate.setText(quiz.getEndDate().toString());
-                questions = quiz.getQuestions();
+                if(!dataSnapshot.exists()){
+                    Toast.makeText(PageQuizDetail.this, "Quiz not found", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-
-                recyclerView(); //不应该放在这里，还是要接口回调
-
-
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    Quiz quiz = child.getValue(Quiz.class);
+                    assert quiz != null;
+                    txtName.setText(quiz.getName());
+                    txtDifficulty.setText(quiz.getDifficulty());
+                    txtCategory.setText(quiz.getCategory());
+                    txtLike.setText(String.valueOf(quiz.getLikes()));
+                    txtStartDate.setText(quiz.getStartDate().toString());
+                    txtEndDate.setText(quiz.getEndDate().toString());
+                    ArrayList<Quiz.QuestionBean> questions = (ArrayList<Quiz.QuestionBean>) quiz.getQuestions();
+                    listener.onQuizDataReceived(true, questions);
+                }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
                 Log.e(TAG, "loadQuiz:onCancelled", databaseError.toException());
             }
-        };
-        myref.addValueEventListener(QuizListener);
+        });
 
     }
 
-    private void recyclerView() {
+    private void recyclerView(ArrayList<Quiz.QuestionBean> questions) {
 
         rvQuestions.setLayoutManager(new LinearLayoutManager(this));
-        AdapterQuestion adapterQuestion = new AdapterQuestion(this, questions,quizType);
+        AdapterQuestion adapterQuestion = new AdapterQuestion(this, questions);
         rvQuestions.setAdapter(adapterQuestion);
 
+    }
+
+    public interface OnQuizDataListener {
+        void onQuizDataReceived(boolean isSuccess, List<Quiz.QuestionBean> questions);
     }
 
 }

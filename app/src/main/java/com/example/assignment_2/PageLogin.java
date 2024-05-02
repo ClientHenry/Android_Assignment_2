@@ -34,7 +34,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class PageLogin extends AppCompatActivity {
 
     Button btnLogin, btnSignup;
-    TextInputLayout textInputLayoutName, textInputLayoutPassword;
+    TextInputLayout textInputLayoutEmail, textInputLayoutPassword;
     DatabaseReference myRef;
 
     @Override
@@ -46,12 +46,12 @@ public class PageLogin extends AppCompatActivity {
 
         btnLogin.setOnClickListener(v -> {
 
-            String userNameInput = validateUserName();
+            String emailInput = validateEmail();
             String passwordInput = validatePassword();
 
-            if(userNameInput != null && passwordInput != null) {
+            if (emailInput != null && passwordInput != null) {
 
-                if (userNameInput.equals("admin") && passwordInput.equals("123456")) {
+                if (emailInput.equals("admin@myunitec.ac.nz") && passwordInput.equals("123456")) {
 
                     Toast.makeText(PageLogin.this, "Login successfully", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(PageLogin.this, PageAdmin.class);
@@ -62,17 +62,17 @@ public class PageLogin extends AppCompatActivity {
                         public void onChecked(boolean validated, String userKey) {
                             if (validated) {
 
-                                Toast.makeText(PageLogin.this, "Login successfully", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(PageLogin.this, "Login in successfully", Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(PageLogin.this, PageUser.class);
                                 intent.putExtra("userKey", userKey);
                                 startActivity(intent);
                             } else {
 
-                                textInputLayoutName.setError("Invalid username or password");
+                                textInputLayoutEmail.setError("Invalid username or password");
                                 textInputLayoutPassword.setError("Invalid username or password");
                             }
                         }
-                    }, userNameInput, passwordInput);
+                    }, emailInput, passwordInput);
                 }
             }
         });
@@ -82,24 +82,28 @@ public class PageLogin extends AppCompatActivity {
             startActivity(new Intent(PageLogin.this, PageSignUp.class));
         });
     }
+
     private void initViews() {
 
         btnLogin = (Button) findViewById(R.id.login_btn_login);
         btnSignup = (Button) findViewById(R.id.login_btn_sign_up);
-        textInputLayoutName = findViewById(R.id.login_txt_username);
+        textInputLayoutEmail = findViewById(R.id.login_txt_email);
         textInputLayoutPassword = findViewById(R.id.login_txt_password);
     }
 
-    private String validateUserName() {
+    private String validateEmail() {
 
-        String usernameInput = textInputLayoutName.getEditText().getText().toString().trim();
+        String emailInput = textInputLayoutEmail.getEditText().getText().toString().trim();
 
-        if (usernameInput.isEmpty()) {
-            textInputLayoutName.setError("Field can't be empty");
+        if (emailInput.isEmpty()) {
+            textInputLayoutEmail.setError("Field can't be empty");
+            return null;
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(emailInput).matches()) {
+            textInputLayoutEmail.setError("Invalid email address");
             return null;
         } else {
-            textInputLayoutName.setError(null);
-            return usernameInput;
+            textInputLayoutEmail.setError(null);
+            return emailInput;
         }
     }
 
@@ -116,13 +120,13 @@ public class PageLogin extends AppCompatActivity {
         }
     }
 
-    private void matchUserInfo(OnUserInfoCheckListener listener, String userNameInput, String passwordInput) {
+    private void matchUserInfo(OnUserInfoCheckListener listener, String emailInput, String passwordInput) {
 
         myRef = FirebaseDatabase.
                 getInstance("https://assignment2-fd51e-default-rtdb.asia-southeast1.firebasedatabase.app/").
                 getReference("User");
 
-        Query myQuery = myRef.orderByChild("name").equalTo(userNameInput);
+        Query myQuery = myRef.orderByChild("email").equalTo(emailInput);
         myQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -145,6 +149,7 @@ public class PageLogin extends AppCompatActivity {
 
                 listener.onChecked(validated, userKey);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -152,6 +157,7 @@ public class PageLogin extends AppCompatActivity {
             }
         });
     }
+
     public interface OnUserInfoCheckListener {
         void onChecked(boolean validated, String userKey);
     }
