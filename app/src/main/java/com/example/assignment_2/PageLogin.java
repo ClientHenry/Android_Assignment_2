@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -133,7 +134,7 @@ public class PageLogin extends AppCompatActivity {
 
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
 
-                        String passwordStored = snapshot.getValue(User.class).getPassword();
+                        String passwordStored = Objects.requireNonNull(snapshot.getValue(User.class)).getPassword();
                         userKey = snapshot.getKey();
 
                         if (passwordStored.equals(passwordInput)) {

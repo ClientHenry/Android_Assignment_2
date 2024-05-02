@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="Ready Go"
+        android:id="@+id/play_quiz_txt_title"
         android:layout_marginTop="40dp"
         android:textColor="#FFFFFF" />
 
@@ -39,6 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_margin="16dp"
+        android:enabled="false"
         android:text="Next Question" />
 
 

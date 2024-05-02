@@ -61,8 +61,8 @@ public class PageCreateQuiz extends AppCompatActivity {
             dateRangePicker.addOnPositiveButtonClickListener(selection -> {
 
                 Pair<Long, Long> dateSelected = (Pair<Long, Long>) dateRangePicker.getSelection();
-                Date startDateSelected = new Date(dateSelected.first);
-                Date endDateSelected = new Date(dateSelected.second);
+                startDateSelected = new Date(dateSelected.first);
+                endDateSelected = new Date(dateSelected.second);
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM. d", Locale.ENGLISH);
                 String startDateformatted = sdf.format(startDateSelected);
                 String endDateformatted = sdf.format(endDateSelected);
@@ -109,9 +109,15 @@ public class PageCreateQuiz extends AppCompatActivity {
             @Override
             public void onResponse(Call<RawOpenTDBDataReturned> call, Response<RawOpenTDBDataReturned> response) {
 
+                if(response.body() == null){
+
+                    Toast.makeText(PageCreateQuiz.this, "Unable to retrieve data", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 List<RawOpenTDBDataReturned.ResultsBean> DataReturned = response.body().getResults();
 
                 if (DataReturned.isEmpty()) {
+
                     Toast.makeText(PageCreateQuiz.this, "No Data Available, choose Another Option", Toast.LENGTH_SHORT).show();
                 } else {
 
@@ -129,16 +135,15 @@ public class PageCreateQuiz extends AppCompatActivity {
 
                     Toast.makeText(PageCreateQuiz.this, "Quiz Created Successfully", Toast.LENGTH_SHORT).show();
                 }
-            }
+        }
+        @Override
+        public void onFailure (Call < RawOpenTDBDataReturned > call, Throwable t){
 
-            @Override
-            public void onFailure(Call<RawOpenTDBDataReturned> call, Throwable t) {
+            Toast.makeText(PageCreateQuiz.this, "Failed to retrieve data", Toast.LENGTH_SHORT).show();
 
-                Toast.makeText(PageCreateQuiz.this, "Failed to retrieve data", Toast.LENGTH_SHORT).show();
-
-            }
-        });
-    }
+        }
+    });
+}
 
     private void initViews() {
 
@@ -272,7 +277,7 @@ public class PageCreateQuiz extends AppCompatActivity {
         return txtLayoutQuizDate.getEditText().getText().toString();
     }
 
-    public interface OnReturnedListener {
-        void onReturned(boolean nameExists);
-    }
+public interface OnReturnedListener {
+    void onReturned(boolean nameExists);
+}
 }

@@ -1,14 +1,12 @@
 package com.example.assignment_2;
 
-import static android.content.ContentValues.TAG;
-
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Button;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -22,35 +20,57 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PagePlayQuiz extends AppCompatActivity {
+public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.OnNmeaMessageListener {
 
     ExtendedFloatingActionButton btnNext;
-    ArrayList<Quiz.QuestionBean> question = new ArrayList<>();
-    private int currentIndex = 0;
     List<Quiz.QuestionBean> questions;
-    String quizKey;
-    String quizType;
-    String userKey;
+
+    TextView txtTitle;
+    private int currentIndex = 0;
+    String quizKey, userKey;
     FirebaseDatabase database;
+
+    private String messageFromFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_play_quiz);
 
-        database = FirebaseDatabase.getInstance("https://assignment-2-e308f-default-rtdb.asia-southeast1.firebasedatabase.app/");
-
+        database = FirebaseDatabase.getInstance("https://assignment2-fd51e-default-rtdb.asia-southeast1.firebasedatabase.app/");
         quizKey = getIntent().getStringExtra("quizKey");
         userKey = getIntent().getStringExtra("userKey");
-
-
-        getQuestions();
-
-
-
         btnNext = findViewById(R.id.play_quiz_btn_next);
+        txtTitle = findViewById(R.id.play_quiz_txt_title);
+
+
+        getQuestions((isSuccess, questionsRetrieved) -> {
+            if (isSuccess) {
+
+                questions = questionsRetrieved;
+                btnNext.setEnabled(true);
+                showFragmentBoolean(questions.get(currentIndex).getQuestion());
+                txtTitle.setText((currentIndex + 1) + "/" + questions.size());
+            }
+        });
 
         btnNext.setOnClickListener(v -> {
+
+            String answer = messageFromFragment;
+            String correctAnswer = questions.get(currentIndex).getCorrect_answer();
+
+            if(answer ==null){
+                Toast.makeText(this, "Please select an answer", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (answer.equals(correctAnswer)) {
+               Toast.makeText(this, "Correct" + correctAnswer, Toast.LENGTH_SHORT).show();
+
+            } else {
+                Toast.makeText(this, "Incorrect" + correctAnswer, Toast.LENGTH_SHORT).show();
+            }
+
 
             currentIndex++;
 
@@ -58,67 +78,64 @@ public class PagePlayQuiz extends AppCompatActivity {
             if (currentIndex < questions.size()) {
 
                     showFragmentBoolean(questions.get(currentIndex).getQuestion());
+                    txtTitle.setText((currentIndex + 1) + "/" + questions.size());
 
+/*
 
                 DatabaseReference myref = database.getReference("User").child(userKey).child("quizzes");
                 myref.setValue(quizKey);
-                finish();
+                finish();*/
 
+            }
+
+            else {
+                DatabaseReference myref = database.getReference("User").child(userKey).child("quizKeyMap");
+                myref.push().setValue(quizKey);
+
+
+                finish();
             }
         });
 
-
-
-
     }
 
-    private void showFragmentMultiple(String txt1, String txt2, String txt3, String txt4, String txt5) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-            FragmentQuestionMultiple fragment = FragmentQuestionMultiple.newInstance(txt1, txt2, txt3, txt4, txt5);
-
-            fragmentTransaction.replace(R.id.play_quiz_quiz_container, fragment);
-            fragmentTransaction.commit();
-
-    }
 
     private void showFragmentBoolean(String question) {
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        FragmentQuestion fragment = FragmentQuestion.newInstance(question);
 
-            FragmentQuestionBoolean fragment = FragmentQuestionBoolean.newInstance(question);
-
-            fragmentTransaction.replace(R.id.play_quiz_quiz_container, fragment);
-            fragmentTransaction.commit();
-
+        fragmentTransaction.replace(R.id.play_quiz_quiz_container, fragment);
+        fragmentTransaction.commit();
     }
 
-    private void getQuestions() {
+    private void getQuestions(OnQuizDataListener listener) {
 
-        DatabaseReference myref = database.getReference("Quiz").child(quizKey);
-        ValueEventListener QuestionListener = new ValueEventListener() {
+        DatabaseReference myRef = database.getReference("Quiz").child(quizKey);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                Quiz quiz = dataSnapshot.getValue(Quiz.class);
-                questions = quiz.getQuestions();
-/*这里还是回调的问题
-               showFragment(questions.get(0).getQuestion(), question.get(0).getCorrect_answer(), questions.get(0).getIncorrect_answers().get(0), questions.get(0).getIncorrect_answers().get(1),
-                        questions.get(0).getIncorrect_answers().get(2));*/
-
-
+                Quiz quiz = snapshot.getValue(Quiz.class);
+                assert quiz != null;
+                List<Quiz.QuestionBean> questions = quiz.getQuestions();
+                listener.onQuizDataReceived(true, questions);
             }
-
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError error) {
 
-                Log.e(TAG, "loadQuiz:onCancelled", databaseError.toException());
+                Toast.makeText(PagePlayQuiz.this, "Failed to get questions", Toast.LENGTH_SHORT).show();
             }
-        };
-        myref.addValueEventListener(QuestionListener);
-
-
+        });
     }
 
+    public interface OnQuizDataListener {
+        void onQuizDataReceived(boolean isSuccess, List<Quiz.QuestionBean> questions);
+    }
+
+    @Override
+    public void onNmeaMessage(String message) {
+        this.messageFromFragment = message;
+    }
 }
