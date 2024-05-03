@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,7 +53,7 @@ public class PageCreateQuiz extends AppCompatActivity {
 
         initViews();
         retrieveQuizCategory();
-
+        // get date information from date range picker and transform it into a string which will be displayed in the text field
         btnDatePicker.setOnClickListener(v -> {
 
             MaterialDatePicker dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
@@ -72,7 +73,7 @@ public class PageCreateQuiz extends AppCompatActivity {
 
             dateRangePicker.show(getSupportFragmentManager(), "DATE_PICKER");
         });
-
+        // create a quiz with the selected options by implementing the retrieveAndCreateQuiz method
         btnCreateQuiz.setOnClickListener(v -> {
 
             quizName = getName();
@@ -102,6 +103,7 @@ public class PageCreateQuiz extends AppCompatActivity {
         });
     }
 
+    // retrieve quiz data from the OpenTDB API and create a quiz with the selected options
     private void retrieveAndCreateQuiz(int categoryID, String difficulty, String name, Date startDate, Date endDate) {
 
         Call<RawOpenTDBDataReturned> dataCall = service.getDataFromOpenTDB(10, categoryID, difficulty, "boolean");
@@ -171,6 +173,7 @@ public class PageCreateQuiz extends AppCompatActivity {
         }
     }
 
+    // validate the input fields
     private boolean validateInput(String name, String date) {
 
         boolean isValid = false;
@@ -185,6 +188,7 @@ public class PageCreateQuiz extends AppCompatActivity {
         return isValid;
     }
 
+    // retrieve quiz categories from the OpenTDB API and display them in the dropdown menu
     private void retrieveQuizCategory() {
 
         Call<QuizCategory> quizCategoryCall = service.getQuizCategories();
@@ -216,6 +220,7 @@ public class PageCreateQuiz extends AppCompatActivity {
         });
     }
 
+    // check if the quiz name already exists in the database
     private void validateQuizName(OnReturnedListener listener, String quizName) {
 
         Query myQuery = myRef.orderByChild("name").equalTo(quizName);
@@ -239,14 +244,15 @@ public class PageCreateQuiz extends AppCompatActivity {
         });
     }
 
+    // get the quiz name, difficulty, category, and date from the input fields
     private String getName() {
 
-        return txtLayoutQuizName.getEditText().getText().toString();
+        return Objects.requireNonNull(txtLayoutQuizName.getEditText()).getText().toString();
     }
 
     private String getDifficulty() {
 
-        String difficulty = txtLayoutQuizDifficulty.getEditText().getText().toString();
+        String difficulty = Objects.requireNonNull(txtLayoutQuizDifficulty.getEditText()).getText().toString();
 
         if (difficulty.equals("Any Difficulty")) {
             return "";
@@ -257,7 +263,7 @@ public class PageCreateQuiz extends AppCompatActivity {
 
     private String getCategory() {
 
-        return txtLayoutQuizCategory.getEditText().getText().toString();
+        return Objects.requireNonNull(txtLayoutQuizCategory.getEditText()).getText().toString();
     }
 
     private int getCategoryID(String category) {
@@ -275,7 +281,7 @@ public class PageCreateQuiz extends AppCompatActivity {
 
     private String getDate() {
 
-        return txtLayoutQuizDate.getEditText().getText().toString();
+        return Objects.requireNonNull(txtLayoutQuizDate.getEditText()).getText().toString();
     }
 
     public interface OnReturnedListener {

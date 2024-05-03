@@ -80,9 +80,9 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-              <androidx.coordinatorlayout.widget.CoordinatorLayout
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content">
+                <androidx.coordinatorlayout.widget.CoordinatorLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
                     <com.google.android.material.textfield.TextInputLayout
 
@@ -92,15 +92,16 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginTop="30dp"
-                        android:hint="Date"
                         android:enabled="false"
+                        android:hint="Date"
                         android:textColorHint="@color/md_theme_light_primary"
                         app:boxBackgroundColor="#FFFFFF"
                         app:errorEnabled="true"
                         app:startIconTint="@color/md_theme_light_primary">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -113,7 +114,7 @@
                         android:layout_marginTop="37dp"
                         app:srcCompat="@drawable/btn_date" />
 
-              </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
                 <com.google.android.material.textfield.TextInputLayout

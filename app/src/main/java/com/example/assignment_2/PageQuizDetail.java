@@ -26,11 +26,12 @@ import java.util.List;
 
 public class PageQuizDetail extends AppCompatActivity {
 
+    // quizName is used to get the quiz detail from the database
+    // viewType is used to determine the view type of the activity(admin or user)
     FloatingActionButton btnReturn;
     TextView txtName, txtDifficulty, txtCategory, txtLike, txtStartDate, txtEndDate;
     RecyclerView rvQuestions;
-    String quizName;
-    String viewType;
+    String quizName, viewType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,6 @@ public class PageQuizDetail extends AppCompatActivity {
         btnReturn.setOnClickListener(v -> {
             finish();
         });
-
     }
 
     private void initViews() {
@@ -66,6 +66,7 @@ public class PageQuizDetail extends AppCompatActivity {
         btnReturn = findViewById(R.id.quiz_detail_btn_return);
     }
 
+    // get the quiz detail from the database
     private void getQuizDetail(OnQuizDataListener listener) {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://assignment2-fd51e-default-rtdb.asia-southeast1.firebasedatabase.app/");
@@ -74,7 +75,7 @@ public class PageQuizDetail extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if(!dataSnapshot.exists()){
+                if (!dataSnapshot.exists()) {
                     Toast.makeText(PageQuizDetail.this, "Quiz not found", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -92,6 +93,7 @@ public class PageQuizDetail extends AppCompatActivity {
                     listener.onQuizDataReceived(true, questions);
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e(TAG, "loadQuiz:onCancelled", databaseError.toException());

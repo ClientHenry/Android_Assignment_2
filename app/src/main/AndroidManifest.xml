@@ -18,7 +18,8 @@
             android:name=".MainActivity"
             android:exported="false"/>
 
-
+<activity android:name=".PageEditUser"
+            android:exported="false" />
 
         <activity
             android:name=".PageLogin"

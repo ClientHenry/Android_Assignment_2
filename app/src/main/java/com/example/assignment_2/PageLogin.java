@@ -91,6 +91,7 @@ public class PageLogin extends AppCompatActivity {
         textInputLayoutPassword = findViewById(R.id.login_txt_password);
     }
 
+    //Check if the email is empty or invalid.
     private String validateEmail() {
 
         String emailInput = textInputLayoutEmail.getEditText().getText().toString().trim();
@@ -107,6 +108,7 @@ public class PageLogin extends AppCompatActivity {
         }
     }
 
+    //Check if the password is empty.
     private String validatePassword() {
 
         String passwordInput = textInputLayoutPassword.getEditText().getText().toString().trim();
@@ -120,6 +122,7 @@ public class PageLogin extends AppCompatActivity {
         }
     }
 
+    //Check if the email and password match; if yes, retrieve the user key.
     private void matchUserInfo(OnUserInfoCheckListener listener, String emailInput, String passwordInput) {
 
         myRef = FirebaseDatabase.
@@ -158,6 +161,7 @@ public class PageLogin extends AppCompatActivity {
         });
     }
 
+    // interface of callback function
     public interface OnUserInfoCheckListener {
         void onChecked(boolean validated, String userKey);
     }

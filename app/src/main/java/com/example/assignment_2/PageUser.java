@@ -32,12 +32,12 @@ public class PageUser extends AppCompatActivity {
 
     RecyclerView recyclerView;
     FloatingActionButton btnReturn;
-    Button btnSignOut;
+    Button btnSignOut, btnEdit;
     TextView txtName;
     String userKey;
     FirebaseDatabase database;
     TabLayout tab;
-    User.quizNameList quizNameList;
+    User.Quiz quizNameList;
 
 
     @Override
@@ -80,10 +80,12 @@ public class PageUser extends AppCompatActivity {
                         break;
                 }
             }
+
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
                 // Handle tab unselect
             }
+
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
                 // Handle tab reselect
@@ -99,6 +101,14 @@ public class PageUser extends AppCompatActivity {
         btnReturn.setOnClickListener(v -> {
             finish();
         });
+
+        btnEdit.setOnClickListener(v -> {
+
+            Intent intent = new Intent(PageUser.this, PageEditUser.class);
+            intent.putExtra("userKey", userKey);
+            startActivity(intent);
+        });
+
     }
 
     private void initViews() {
@@ -106,10 +116,12 @@ public class PageUser extends AppCompatActivity {
         recyclerView = findViewById(R.id.user_recycler);
         btnReturn = findViewById(R.id.user_btn_return);
         btnSignOut = findViewById(R.id.user_btn_sign_out);
+        btnEdit = findViewById(R.id.user_btn_edit);
         txtName = findViewById(R.id.user_txt_name);
         tab = findViewById(R.id.user_tab);
     }
 
+    // retrieve all quizzes from the database for further processing
     private void getAllQuizzes(OnQuizDataListener listener) {
 
         DatabaseReference quizRef = database.getReference("Quiz");
@@ -125,6 +137,7 @@ public class PageUser extends AppCompatActivity {
                 }
                 listener.onQuizDataReceived(true, quizList);
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -133,12 +146,14 @@ public class PageUser extends AppCompatActivity {
         });
     }
 
+    // set the recycle view with the selected quizzes and the view type
     private void setRecycleView(ArrayList<Quiz> quizListSelected, String viewType) {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new AdapterQuiz(this, quizListSelected, viewType, userKey));
     }
 
+    // retrieve the user data from the database by the user key
     private void getUser(OnUserDataListener listener) {
 
         DatabaseReference myrRef = database.getReference("User").child(userKey);
@@ -147,15 +162,23 @@ public class PageUser extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
 
-                    User user = dataSnapshot.getValue(User.class);
-                    txtName.setText("Hi " + user.getName());
+                User user = dataSnapshot.getValue(User.class);
 
+                if (user == null) {
+                    Toast.makeText(PageUser.this, "Fail to retrieve user data", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                    quizNameList = user.getQuizNameList();
-
-                    listener.onUserDataReceived(true);
+                String name = user.getName();
+                if (name.isEmpty()) {
+                    name = "there";
+                }
+                txtName.setText("Hi " + name);
+                quizNameList = user.getQuiz();
+                listener.onUserDataReceived(true);
 
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -164,7 +187,8 @@ public class PageUser extends AppCompatActivity {
         });
     }
 
-    private void getParticipatedQuizzes(User.quizNameList quizNameList) {
+    // get the quizzes that the user has participated in
+    private void getParticipatedQuizzes(User.Quiz quizNameList) {
         getAllQuizzes(new OnQuizDataListener() {
             @Override
             public void onQuizDataReceived(boolean isReceived, ArrayList<Quiz> quizList) {
@@ -188,7 +212,8 @@ public class PageUser extends AppCompatActivity {
         });
     }
 
-    private void getPastQuizzes(User.quizNameList quizNameList) {
+    // get the quizzes past the end date
+    private void getPastQuizzes(User.Quiz quizNameList) {
         getAllQuizzes(new OnQuizDataListener() {
             @Override
             public void onQuizDataReceived(boolean isReceived, ArrayList<Quiz> quizList) {
@@ -210,7 +235,8 @@ public class PageUser extends AppCompatActivity {
         });
     }
 
-    private void getOngoingQuizzes(User.quizNameList quizNameList) {
+    // get the quizzes that are ongoing but the user has not participated in
+    private void getOngoingQuizzes(User.Quiz quizNameList) {
         getAllQuizzes(new OnQuizDataListener() {
             @Override
             public void onQuizDataReceived(boolean isReceived, ArrayList<Quiz> quizList) {
@@ -233,6 +259,7 @@ public class PageUser extends AppCompatActivity {
         });
     }
 
+    // get the quizzes that are upcoming
     private void getUpcomingQuizzes() {
         getAllQuizzes(new OnQuizDataListener() {
             @Override
@@ -251,10 +278,12 @@ public class PageUser extends AppCompatActivity {
         });
     }
 
+    // interface for the quiz data listener
     public interface OnQuizDataListener {
         void onQuizDataReceived(boolean isReceived, ArrayList<Quiz> quizList);
     }
 
+    // interface for the user data listener
     public interface OnUserDataListener {
         void onUserDataReceived(boolean isReceived);
     }

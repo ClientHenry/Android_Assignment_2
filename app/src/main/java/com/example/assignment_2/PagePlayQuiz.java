@@ -30,7 +30,6 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
     private int currentIndex = 0;
     String quizName, userKey;
     FirebaseDatabase database;
-
     private String messageFromFragment;
 
     @Override
@@ -40,17 +39,15 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
         setContentView(R.layout.activity_page_play_quiz);
 
         database = FirebaseDatabase.getInstance("https://assignment2-fd51e-default-rtdb.asia-southeast1.firebasedatabase.app/");
-        quizName = getIntent().getStringExtra("quizName");
-        userKey = getIntent().getStringExtra("userKey");
-        btnNext = findViewById(R.id.play_quiz_btn_next);
-        txtTitle = findViewById(R.id.play_quiz_txt_title);
+
+        initViews();
 
         getQuestions((isSuccess, questionsRetrieved) -> {
 
             if (isSuccess) {
                 questions = questionsRetrieved;
                 btnNext.setEnabled(true);
-                showFragmentBoolean(questions.get(currentIndex).getQuestion());
+                showFragment(questions.get(currentIndex).getQuestion());
                 txtTitle.setText((currentIndex + 1) + "/" + questions.size());
             }
         });
@@ -60,13 +57,12 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
             String answer = messageFromFragment;
             String correctAnswer = questions.get(currentIndex).getCorrect_Answer();
 
-            if(answer ==null){
+            if (answer == null) {
                 Toast.makeText(this, "Please select an answer", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             if (answer.equals(correctAnswer)) {
-               Toast.makeText(this, "Correct" + correctAnswer, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Correct" + correctAnswer, Toast.LENGTH_SHORT).show();
 
             } else {
                 Toast.makeText(this, "Incorrect" + correctAnswer, Toast.LENGTH_SHORT).show();
@@ -76,8 +72,8 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
 
             if (currentIndex < questions.size()) {
 
-                    showFragmentBoolean(questions.get(currentIndex).getQuestion());
-                    txtTitle.setText((currentIndex + 1) + "/" + questions.size());
+                showFragment(questions.get(currentIndex).getQuestion());
+                txtTitle.setText((currentIndex + 1) + "/" + questions.size());
 
             } else {
 
@@ -86,7 +82,17 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
             }
         });
     }
-    private void showFragmentBoolean(String question) {
+
+    private void initViews() {
+
+        quizName = getIntent().getStringExtra("quizName");
+        userKey = getIntent().getStringExtra("userKey");
+        btnNext = findViewById(R.id.play_quiz_btn_next);
+        txtTitle = findViewById(R.id.play_quiz_txt_title);
+    }
+
+    // display questions in different pages by implementing the fragment function
+    private void showFragment(String question) {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -96,6 +102,14 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
         fragmentTransaction.commit();
     }
 
+    // get the message from the fragment
+    @Override
+    public void onNmeaMessage(String message) {
+
+        this.messageFromFragment = message;
+    }
+
+    // get questions from the database by querying the quiz name which is passed from the previous activity
     private void getQuestions(OnQuizDataListener listener) {
 
         Query query = database.getReference("Quiz").orderByChild("name").equalTo(quizName);
@@ -103,18 +117,19 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                if(!snapshot.exists()){
+                if (!snapshot.exists()) {
                     Toast.makeText(PagePlayQuiz.this, "No Quiz found", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     Quiz quiz = dataSnapshot.getValue(Quiz.class);
                     assert quiz != null;
                     List<Quiz.QuestionBean> questions = quiz.getQuestions();
                     listener.onQuizDataReceived(true, questions);
                 }
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
@@ -123,7 +138,8 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
         });
     }
 
-    private void updateUser(){
+    // update the user's quiz list after the user has completed the quiz
+    private void updateUser() {
         DatabaseReference userRef = database.getReference("User").child(userKey);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -131,14 +147,11 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
                 User user = snapshot.getValue(User.class);
                 assert user != null;
 
-                User.quizNameList quizNameList = user.getQuizNameList();
-                ArrayList<String> c = quizNameList.getNameList();
-                c.add(quizName);
-                quizNameList.setNameList(c);
-                user.setQuizNameList(quizNameList);
+                user.getQuiz().getNameList().add(quizName);
                 userRef.setValue(user);
 
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
@@ -146,12 +159,9 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
             }
         });
     }
+
+    // interface to get the questions from the database
     public interface OnQuizDataListener {
         void onQuizDataReceived(boolean isSuccess, List<Quiz.QuestionBean> questions);
-    }
-
-    @Override
-    public void onNmeaMessage(String message) {
-        this.messageFromFragment = message;
     }
 }
