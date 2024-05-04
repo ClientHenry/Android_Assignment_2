@@ -2,6 +2,7 @@ package com.example.assignment_2;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -10,7 +11,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,11 +27,14 @@ import java.util.List;
 
 public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.OnNmeaMessageListener {
 
-    ExtendedFloatingActionButton btnNext;
+    Button btnNext;
+    FloatingActionButton btnReturn;
     List<Quiz.QuestionBean> questions;
+    Quiz quiz;
     TextView txtTitle;
     private int currentIndex = 0;
-    String quizName, userKey;
+    private int score = 0;
+    String quizKey, userKey;
     FirebaseDatabase database;
     private String messageFromFragment;
 
@@ -48,7 +54,6 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
                 questions = questionsRetrieved;
                 btnNext.setEnabled(true);
                 showFragment(questions.get(currentIndex).getQuestion());
-                txtTitle.setText((currentIndex + 1) + "/" + questions.size());
             }
         });
 
@@ -58,26 +63,48 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
             String correctAnswer = questions.get(currentIndex).getCorrect_Answer();
 
             if (answer == null) {
-                Toast.makeText(this, "Please select an answer", Toast.LENGTH_SHORT).show();
+
+                txtTitle.setText("Select an answer!");
                 return;
             }
+
             if (answer.equals(correctAnswer)) {
-                Toast.makeText(this, "Correct" + correctAnswer, Toast.LENGTH_SHORT).show();
+
+                txtTitle.setText("Correct!");
+                score++;
 
             } else {
-                Toast.makeText(this, "Incorrect" + correctAnswer, Toast.LENGTH_SHORT).show();
+
+                txtTitle.setText("Incorrect!\n The correct answer is " + correctAnswer);
             }
+
+            messageFromFragment = null;
 
             currentIndex++;
 
             if (currentIndex < questions.size()) {
 
                 showFragment(questions.get(currentIndex).getQuestion());
-                txtTitle.setText((currentIndex + 1) + "/" + questions.size());
 
             } else {
-
+                btnNext.setEnabled(false);
                 updateUser();
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+                builder.setTitle("You score: " + score + " out of 10").setMessage("Like this quiz?").
+                        setPositiveButton("Yes", (dialog, which) -> {
+
+                            updateQuiz();
+                            finish();
+                        }).setNegativeButton("No", (dialog, which) -> {
+                            finish();
+                        }).show();
+
+            }
+        });
+
+        btnReturn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 finish();
             }
         });
@@ -85,10 +112,11 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
 
     private void initViews() {
 
-        quizName = getIntent().getStringExtra("quizName");
+        quizKey = getIntent().getStringExtra("quizKey");
         userKey = getIntent().getStringExtra("userKey");
         btnNext = findViewById(R.id.play_quiz_btn_next);
         txtTitle = findViewById(R.id.play_quiz_txt_title);
+        btnReturn = findViewById(R.id.play_quiz_btn_return);
     }
 
     // display questions in different pages by implementing the fragment function
@@ -112,8 +140,8 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
     // get questions from the database by querying the quiz name which is passed from the previous activity
     private void getQuestions(OnQuizDataListener listener) {
 
-        Query query = database.getReference("Quiz").orderByChild("name").equalTo(quizName);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference myRef = database.getReference("Quiz").child(quizKey);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -122,12 +150,11 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
                     return;
                 }
 
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Quiz quiz = dataSnapshot.getValue(Quiz.class);
-                    assert quiz != null;
-                    List<Quiz.QuestionBean> questions = quiz.getQuestions();
-                    listener.onQuizDataReceived(true, questions);
-                }
+                quiz = snapshot.getValue(Quiz.class);
+                assert quiz != null;
+                List<Quiz.QuestionBean> questions = quiz.getQuestions();
+                listener.onQuizDataReceived(true, questions);
+
             }
 
             @Override
@@ -136,6 +163,14 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
                 Toast.makeText(PagePlayQuiz.this, "Failed to get Quiz", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void updateQuiz() {
+
+        quiz.setLikes(quiz.getLikes() + 1);
+        database.getReference("Quiz").child(quizKey).setValue(quiz);
+        Toast.makeText(this, "Quiz updated", Toast.LENGTH_SHORT).show();
+
     }
 
     // update the user's quiz list after the user has completed the quiz
@@ -147,8 +182,9 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
                 User user = snapshot.getValue(User.class);
                 assert user != null;
 
-                user.getQuiz().getNameList().add(quizName);
+                user.getQuiz().getKeyList().add(quizKey);
                 userRef.setValue(user);
+                Toast.makeText(PagePlayQuiz.this, "User updated", Toast.LENGTH_SHORT).show();
 
             }
 

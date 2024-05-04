@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -74,36 +75,33 @@ public class PageAdmin extends AppCompatActivity {
             }
         });
     }
-
     private void getAllQuizzes(OnDataListener listener) {
 
         DatabaseReference myRef = FirebaseDatabase
                 .getInstance("https://assignment2-fd51e-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("Quiz");
 
-        ArrayList<Quiz> quizList = new ArrayList<>();
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        HashMap<String, Quiz> quizList = new HashMap<>();
+        myRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                for (DataSnapshot quiz : dataSnapshot.getChildren()) {
+                for (DataSnapshot quiz : snapshot.getChildren()) {
 
                     Quiz newQuiz = quiz.getValue(Quiz.class);
-                    quizList.add(newQuiz);
+                    quizList.put(quiz.getKey(), newQuiz);
                 }
 
                 listener.onDataRetrieved(true, quizList);
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                Toast.makeText(PageAdmin.this, "Error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(PageAdmin.this, "Error retrieving data", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void recyclerView(ArrayList<Quiz> quizList) {
+    private void recyclerView(HashMap<String, Quiz> quizList) {
 
         rvQuizzes = findViewById(R.id.admin_recyclerview);
         rvQuizzes.setLayoutManager(new LinearLayoutManager(this));
@@ -111,6 +109,6 @@ public class PageAdmin extends AppCompatActivity {
     }
 
     public interface OnDataListener {
-        void onDataRetrieved(boolean success, ArrayList<Quiz> quizList);
+        void onDataRetrieved(boolean success, HashMap<String, Quiz> quizList);
     }
 }

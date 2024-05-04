@@ -38,7 +38,7 @@ public class PageCreateQuiz extends AppCompatActivity {
 
     TextInputLayout txtLayoutQuizName, txtLayoutQuizDifficulty, txtLayoutQuizCategory, txtLayoutQuizDate;
     Button btnCreateQuiz, btnCancel;
-    FloatingActionButton btnReturn, btnDatePicker;
+    FloatingActionButton btnDatePicker;
     String quizName, quizDifficulty, quizCategory, quizDate;
     int quizCategoryID;
     Date startDateSelected, endDateSelected;
@@ -92,10 +92,6 @@ public class PageCreateQuiz extends AppCompatActivity {
                     }
                 }, quizName);
             }
-        });
-
-        btnReturn.setOnClickListener(v -> {
-            finish();
         });
 
         btnCancel.setOnClickListener(v -> {
@@ -156,7 +152,6 @@ public class PageCreateQuiz extends AppCompatActivity {
         txtLayoutQuizDate = findViewById(R.id.create_quiz_txt_date);
         btnCreateQuiz = findViewById(R.id.create_quiz_btn_create);
         btnDatePicker = findViewById(R.id.create_quiz_btn_datepicker);
-        btnReturn = findViewById(R.id.create_quiz_btn_return);
         btnCancel = findViewById(R.id.create_quiz_btn_cancel);
 
         myRef = FirebaseDatabase.getInstance("https://assignment2-fd51e-default-rtdb.asia-southeast1.firebasedatabase.app/")
@@ -287,4 +282,8 @@ public class PageCreateQuiz extends AppCompatActivity {
     public interface OnReturnedListener {
         void onReturned(boolean nameExists);
     }
+
+
+
+
 }
