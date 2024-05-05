@@ -282,8 +282,4 @@ public class PageCreateQuiz extends AppCompatActivity {
     public interface OnReturnedListener {
         void onReturned(boolean nameExists);
     }
-
-
-
-
 }

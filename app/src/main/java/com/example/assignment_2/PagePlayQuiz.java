@@ -67,7 +67,6 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
                 txtTitle.setText("Select an answer!");
                 return;
             }
-
             if (answer.equals(correctAnswer)) {
 
                 txtTitle.setText("Correct!");
@@ -77,7 +76,6 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
 
                 txtTitle.setText("Incorrect!\n The correct answer is " + correctAnswer);
             }
-
             messageFromFragment = null;
 
             currentIndex++;
@@ -92,19 +90,18 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
                 builder.setTitle("You score: " + score + " out of 10").setMessage("Like this quiz?").
                         setPositiveButton("Yes", (dialog, which) -> {
-
                             updateQuiz();
                             finish();
                         }).setNegativeButton("No", (dialog, which) -> {
                             finish();
                         }).show();
-
             }
         });
 
         btnReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 finish();
             }
         });
@@ -125,7 +122,6 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         FragmentQuestion fragment = FragmentQuestion.newInstance(question);
-
         fragmentTransaction.replace(R.id.play_quiz_quiz_container, fragment);
         fragmentTransaction.commit();
     }
@@ -149,7 +145,6 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
                     Toast.makeText(PagePlayQuiz.this, "No Quiz found", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
                 quiz = snapshot.getValue(Quiz.class);
                 assert quiz != null;
                 List<Quiz.QuestionBean> questions = quiz.getQuestions();
@@ -170,7 +165,6 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
         quiz.setLikes(quiz.getLikes() + 1);
         database.getReference("Quiz").child(quizKey).setValue(quiz);
         Toast.makeText(this, "Quiz updated", Toast.LENGTH_SHORT).show();
-
     }
 
     // update the user's quiz list after the user has completed the quiz
@@ -185,7 +179,6 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
                 user.getQuiz().getKeyList().add(quizKey);
                 userRef.setValue(user);
                 Toast.makeText(PagePlayQuiz.this, "User updated", Toast.LENGTH_SHORT).show();
-
             }
 
             @Override

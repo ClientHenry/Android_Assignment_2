@@ -45,5 +45,4 @@
         android:enabled="false"
         android:text="Next Question" />
 
-
 </LinearLayout>
