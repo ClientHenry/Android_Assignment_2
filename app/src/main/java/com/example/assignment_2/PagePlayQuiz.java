@@ -65,16 +65,19 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
             if (answer == null) {
 
                 txtTitle.setText("Select an answer!");
+                txtTitle.setTextColor(getResources().getColor(R.color.quiz_no_input));
                 return;
             }
             if (answer.equals(correctAnswer)) {
 
                 txtTitle.setText("Correct!");
+                txtTitle.setTextColor(getResources().getColor(R.color.quiz_correct));
                 score++;
 
             } else {
 
                 txtTitle.setText("Incorrect!\n The correct answer is " + correctAnswer);
+                txtTitle.setTextColor(getResources().getColor(R.color.quiz_incorrect));
             }
             messageFromFragment = null;
 
@@ -93,6 +96,8 @@ public class PagePlayQuiz extends AppCompatActivity implements FragmentQuestion.
                             updateQuiz();
                             finish();
                         }).setNegativeButton("No", (dialog, which) -> {
+                            finish();
+                        }).setOnCancelListener(dialog -> {
                             finish();
                         }).show();
             }
